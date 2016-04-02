@@ -16,7 +16,6 @@ function setupUI(blob) {
    var k=topkeys[0];
    var dblob=blob[k];
    var dataKeys=getKeys(dblob);
-window.console.log(dataKeys);
   var bElm = document.getElementById('controlBlock');
   if(bElm) {
     setupCheckBtns(dataKeys);
@@ -33,12 +32,7 @@ function setupCheckBtns(keys) {
                        '<div class="list-group">';
   for (var i = 0; i < keys.length; i++) {
     var oneItem = '<div class="list-group-item"><input type="checkbox" checked id="'+keys[i]+'" name="'+keys[i]+'" class="switch" onclick="toggleTrace('+i+')"/><label for="'+keys[i]+'">'+keys[i]+'</label> </div>';
-/*
-'<a href="#" class="list-group-item" id='+ keys[i] + ' style="color:black" '+
-           'onclick=toggleTrace('+i+') '+ '>' + keys[i] + '</a>';
-*/
     outItem += oneItem;
-    window.console.log(oneItem);
   }
   outItem += '</div></div>';
   list.innerHTML += outItem;
