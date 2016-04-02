@@ -1,7 +1,8 @@
 
 var savePlot=null;  // point to the viewer node
-var saveY=[];     // Ys values
-var saveTrace=[]; // key/label for the traces
+var saveY=[];       // Ys values
+var saveYnorm=[];   // Ys normalized values
+var saveTrace=[];   // key/label for the traces
 var saveTracking=[];// state of traces being shown (true/false)
 var saveColor=[];
 
@@ -17,20 +18,35 @@ function getColor(idx) {
                 'rgba(0, 0, 255, .8)',
                 'rgba(255, 168, 0, .8)'];
   var tmp=(idx % 4);
-  window.console.log("getColor.."+idx+" and "+tmp);
   return stockColor[tmp];
 }
 
+//http://www.originlab.com/doc/X-Function/ref/cnormalize#Algorithm
+function normalizeY(y) {
+  var n=[];
+  var cnt=y.length;
+  var max=Math.max.apply(Math,y);
+  var min=Math.min.apply(Math,y);
+  var delta=max-min;
+  var t;
+  for(var i=0;i<cnt;i++) {
+    t=(y[i]-min)/(delta); 
+    n.push(t);
+  }
+  return n;
+}
+
 // { dataset: { "signal0: [v1, v2...] },
-function processForLines(blob) {
+function processForPlotting(blob) {
    var topkeys=getKeys(blob);
    var k=topkeys[0];
    var dblob=blob[k];
    saveTrace=getKeys(dblob);
    var cnt=saveTrace.length;
-   for(i=0;i<cnt;i++) {
+   for(var i=0;i<cnt;i++) {
      var k=saveTrace[i];
      saveY.push(dblob[k]);
+     saveYnorm.push(normalizeY(dblob[k]));
      saveColor.push(getColor(i));
      saveTracking.push(true); //
      saveXmax=(dblob[k].length>saveXmax)?dblob[k].length:saveXmax;
@@ -50,7 +66,6 @@ function processForLines(blob) {
 // initial set
 function addLineChart(blob) {
   // returns, Y-array, array-length, array-names
-  processForLines(blob);
   var _y=saveY;
   var _keys=saveTrace;
   var _colors=saveColor;
@@ -68,15 +83,16 @@ function updateLineChart() {
   var _colors=[];
   var _keys=[];
 
-window.console.log("----"+cnt);
-  for(i=0;i<cnt;i++) {
+  for(var i=0;i<cnt;i++) {
      if(saveTracking[i]==true) {
-     window.console.log("here.."+i+" "+saveTracking[i]);
-       _y.push(saveY[i]);
+       if(showNormalize==true) { 
+         _y.push(saveYnorm[i]);
+         } else {
+           _y.push(saveY[i]);
+       }
        _colors.push(getColor(i));
        _keys.push(saveTrace[i]);
        } else {
-     window.console.log("here.."+i+" "+saveTracking[i]);
      }
   }
   var _data=getLinesAt(_y,_keys,_colors);
@@ -102,11 +118,17 @@ function getLinesAt(y,trace,color) {
 }
 
 function getLinesDefaultLayout(keys){
+  var tmp;
+  if(showNormalize==true)
+     tmp={ "title":"Intensity","range":[0,1] };
+     else  
+       tmp={ "title":"Intensity","range":[ saveYmin,saveYmax] };
+
   var p= {
         "width": 600,
         "height": 400,
         "xaxis": { "title":"Time", "range":[0,3000]} ,
-        "yaxis": { "title":"Intensity","range":[-5,15] } ,
+        "yaxis": tmp,
         };
   return p;
 }
@@ -133,11 +155,13 @@ function getAPlot(divname) {
   return gd;
 }
 
+/***
 function deleteTrace(which) {
   var idx=saveTrace.indexOf(which);
   window.console.log("delete a trace..");
   Plotly.deleteTraces(savePlot, idx);
 }
+***/
 
 function toggleTrace(idx) {
   saveTracking[idx] = !saveTracking[idx];

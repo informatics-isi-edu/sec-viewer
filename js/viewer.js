@@ -19,11 +19,13 @@ var init_baseline=saveBaseline;
 
 function toggleNormalize() {
   showNormalize = ! showNormalize;
+  var tog = document.getElementById('normalizeBtn');
   if(showNormalize) {
-    jQuery('#normalizeBtn').prop('color','red');
+    tog.style.color='red';
     } else {
-      jQuery('#normalizeBtn').prop('color','green');
+      tog.style.color='white';
   }
+  updateLineChart();
 }
 
 
@@ -106,8 +108,6 @@ function displayInitPlot(blob) {
 /*****MAIN*****/
 jQuery(document).ready(function() {
 
-$('.trace-list-select2').select2({theme:"classic"});
-
   // defaults from viewer-user.js
   init_baseline=saveBaseline;
 
@@ -116,21 +116,16 @@ $('.trace-list-select2').select2({theme:"classic"});
   if (args.length === 2) {
     var url=processArgs(args);
     var blob=loadBlobFromJsonFile(url);
+    processForPlotting(blob);
     var dataKeys=setupUI(blob);
     saveBlob=blob;
     } else {
     window.console.log("BADDDDD");    
   }
 
-   $('#trace-list').change(function() {
-     var trace = document.getElementById("trace-list").value;
-     deleteTrace(trace);
-     window.console.log("trace-list got updated...");
-   })
-
-   if(!enableEmbedded) {
-     displayInitPlot(saveBlob);
-   }
+  if(!enableEmbedded) {
+    displayInitPlot(saveBlob);
+  }
 })
 
 
