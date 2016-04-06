@@ -112,7 +112,6 @@ jQuery(document).ready(function() {
   init_baseline=saveBaseline;
 
   var args=document.location.href.split('?');
-//http://localhost/plotly/view.html?http://localhost/data/plotly/inf_072514.EP5.json
   if (args.length === 2) {
     var url=processArgs(args);
     var blob=loadBlobFromJsonFile(url);
@@ -120,7 +119,8 @@ jQuery(document).ready(function() {
     var dataKeys=setupUI(blob);
     saveBlob=blob;
     } else {
-    window.console.log("BADDDDD");    
+      alertify.error("Usage: view.html?http://datapath/data.json");
+      return;
   }
 
   if(!enableEmbedded) {

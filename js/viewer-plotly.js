@@ -1,6 +1,8 @@
 
 var savePlot=null;  // point to the viewer node
 var saveY=[];       // Ys values
+var saveX=[];       // X value, base on actual_sampling_interval
+                    // in seconds
 var saveYnorm=[];   // Ys normalized values
 var saveTrace=[];   // key/label for the traces
 var saveTracking=[];// state of traces being shown (true/false)
@@ -37,19 +39,26 @@ function normalizeY(y) {
 }
 
 // { dataset: { "signal0: [v1, v2...] },
+// generate X min,max, in range
+// needed actual_sampling_interval:0.4 
+//        retention_unit: seconds
+//        number of y values:3000
+//        Xmin=0; Xmax=(0.4*3000)/60=20minutes
 function processForPlotting(blob) {
    var topkeys=getKeys(blob);
    var k=topkeys[0];
+window.console.log("get a topkey..",k);
    var dblob=blob[k];
    saveTrace=getKeys(dblob);
    var cnt=saveTrace.length;
    for(var i=0;i<cnt;i++) {
      var k=saveTrace[i];
+window.console.log("get just key..",k);
      saveY.push(dblob[k]);
      saveYnorm.push(normalizeY(dblob[k]));
      saveColor.push(getColor(i));
      saveTracking.push(true); //
-     saveXmax=(dblob[k].length>saveXmax)?dblob[k].length:saveXmax;
+     //saveXmax=(dblob[k].length>saveXmax)?dblob[k].length:saveXmax;
      var max=Math.max.apply(Math,dblob[k]);
      var min=Math.min.apply(Math,dblob[k]);
      if(saveYmax==null)
@@ -60,6 +69,14 @@ function processForPlotting(blob) {
         saveYmin=min; 
         else 
            saveYmin=(min>saveYmin)?saveYmin:min;
+     saveXmin=0;
+     saveXmax=(0.4*3000)/60;
+     saveX=Array.apply(0, Array(3000)).map(function(_,b) 
+     { return((0.4/60) * b); });
+     window.console.log(saveX.length);
+     window.console.log(saveX);
+     window.console.log("y min, max",saveYmin, saveYmax);
+     window.console.log("x min, max",saveXmin, saveXmax);
    }
 }
 
@@ -100,11 +117,20 @@ function updateLineChart() {
   savePlot=addAPlot('#myViewer',_data, _layout,600,500);
 }
 
+//IMPT6620_NTX_E2-3_012216-SIGNAL01
+//^^^^^^^^^^^^^^^^^ sample name
+function shortName(trace) {
+var n = trace.indexOf("_NTX_");
+if(n > 0) 
+   return trace.substring(0,n);
+return trace;
+}
+
 function makeOne(y,trace,color) {
   var len=y.length;
-  var x=Array.apply(0, Array(len)).map(function(_,b) { return b + 1; });
   var marker_val = { 'size':10, 'color':color};
-  var t= { "x":x, "y":y, "name":trace, "marker": marker_val,  "type":"scatter" };
+  var t= { "x":saveX, "y":y, "name":shortName(trace), "marker": marker_val, 
+           "type":"scatter" };
   return t;
 }
 
@@ -117,17 +143,20 @@ function getLinesAt(y,trace,color) {
   return data;
 }
 
-function getLinesDefaultLayout(keys){
+function getLinesDefaultLayout(){
   var tmp;
   if(showNormalize==true)
-     tmp={ "title":"Intensity","range":[0,1] };
+     tmp={ "title":"Signal","range":[0,1] };
      else  
-       tmp={ "title":"Intensity","range":[ saveYmin,saveYmax] };
+       tmp={ "title":"Signal","range":[ saveYmin,saveYmax] };
 
   var p= {
         "width": 600,
         "height": 400,
-        "xaxis": { "title":"Time", "range":[0,3000]} ,
+        "xaxis": {"title":"Time(min)",
+                  "range":[0,20],
+                  "type":"linear"
+                 },
         "yaxis": tmp,
         };
   return p;
