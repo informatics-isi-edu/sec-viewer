@@ -1,5 +1,5 @@
 //
-// sec-viewer
+// sec-viewer/viewer-plotly.js
 //
 //
 var savePlot=null;  // point to the viewer node
@@ -55,15 +55,15 @@ function getList(obj) {
 //        number of y values:3000
 //        Xmin=0; Xmax=(0.4*3000)/60=20minutes
 function processForPlotting(blob) {
-
-   saveTrace=getKeys(blob); // skip 'time' line
-   var cnt=saveTrace.length;
+   var _trace=getKeys(blob); // skip '_time' line
+   var cnt=_trace.length;
    for(var i=0;i<cnt;i++) {
-     var k=saveTrace[i];
+     var k=_trace[i];
      var _y=getList(blob[k]);
+     saveTrace.push(k);
      saveY.push(_y);
      saveYnorm.push(normalizeY(_y));
-     saveColor.push(getColor(i));
+     saveColor.push(getColor(saveTrace.length-1));
      saveTracking.push(true); //
      var max=Math.max.apply(Math,_y);
      var min=Math.min.apply(Math,_y);
@@ -75,21 +75,36 @@ function processForPlotting(blob) {
         saveYmin=min; 
         else 
            saveYmin=(min>saveYmin)?saveYmin:min;
-   }
    // process for saveX
-   saveX=getList(blob['time']);
-   saveXmin=0;
-   saveXmax=Math.round(Math.max.apply(Math,saveX));
+     var tkey=makeTimeKey(k);
+     var _xblob=blob[tkey];
+     if(_xblob == null) {
+       alertify.error("big PANIC...");
+     }
+     var _x=getList(_xblob);
+     saveX.push(_x);
+     max=Math.max.apply(Math,_x);
+     min=Math.min.apply(Math,_x);
+     if(saveXmax==null)
+        saveXmax=max; 
+        else 
+           saveXmax=(max>saveXmax)?max:saveXmax;
+     if(saveXmin==null)
+        saveXmin=min; 
+        else 
+           saveXmin=(min>saveXmin)?saveXmin:min;
+   }
 }
 
 // initial set
-function addLineChart(blob) {
+function addLineChart() {
   // returns, Y-array, array-length, array-names
   var _y=saveY;
+  var _x=saveX;
   var _keys=saveTrace;
   var _colors=saveColor;
 
-  var _data=getLinesAt(_y,_keys,_colors);
+  var _data=getLinesAt(_x, _y,_keys,_colors);
   var _layout=getLinesDefaultLayout();
 
   savePlot=addAPlot('#myViewer',_data, _layout,600,500);
@@ -99,6 +114,7 @@ function updateLineChart() {
   $('#myViewer').empty();
   var cnt=saveTracking.length; 
   var _y=[];
+  var _x=[];
   var _colors=[];
   var _keys=[];
 
@@ -106,31 +122,33 @@ function updateLineChart() {
      if(saveTracking[i]==true) {
        if(showNormalize==true) { 
          _y.push(saveYnorm[i]);
+         _x.push(saveX[i]); 
          } else {
            _y.push(saveY[i]);
+           _x.push(saveX[i]); 
        }
-       _colors.push(getColor(i));
+       _colors.push(saveColor[i]);
        _keys.push(saveTrace[i]);
        } else {
      }
   }
-  var _data=getLinesAt(_y,_keys,_colors);
+  var _data=getLinesAt(_x, _y,_keys,_colors);
   var _layout=getLinesDefaultLayout();
   savePlot=addAPlot('#myViewer',_data, _layout,600,500);
 }
 
-function makeOne(y,trace,color) {
+function makeOne(x,y,trace,color) {
   var marker_val = { 'size':10, 'color':color};
-  var t= { "x":saveX, "y":y, "name":trimKey(trace), "marker": marker_val, 
+  var t= { "x":x, "y":y, "name":trimKey(trace), "marker": marker_val, 
            "type":"scatter" };
   return t;
 }
 
-function getLinesAt(y,trace,color) {
+function getLinesAt(x,y,trace,color) {
   var cnt=y.length;
   var data=[];
   for (var i=0;i<cnt; i++) {
-    data.push(makeOne(y[i],trace[i],color[i])); 
+    data.push(makeOne(x[i],y[i],trace[i],color[i])); 
   }
   return data;
 }

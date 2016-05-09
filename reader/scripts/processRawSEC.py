@@ -19,6 +19,9 @@
 ## or it could be 
 ##    KOR_construct_screening/IMPT4825_NTX_E2-3_020216.aia/SIGNAL01.cdf
 ##
+##./processRawSEC.py KOR_construct_screening/IMPT6744_NTX_E2-3_012216.aia resultLoc
+##./processRawSEC.py KOR_construct_screening resultLoc
+##./processRawSEC.py /Users/blah/gpcr/sec-viewer/data/usc/MING resultLocMing
 ##
 ## ** remember to install netCDF4, python package
 
@@ -51,6 +54,8 @@ attrlist=[ 'sample_name', 'detector_unit', 'detector_name',
            'sample_id', 'dataset_completeness', 'aia_template_revision',
            'netcdf_revision','languages','HP_injection_time',
            'experiment_title', 'operator_name', 'separation_experiment_type' ]
+
+dimlist=[ 'point_number', 'peak_number', 'error_number']
 
 ## list to dictionary
 def list2dictionary(list):
@@ -104,10 +109,19 @@ def generate_dataset_name(dir,fname):
     else:
       return fname
 
+def explode_dim(inputgrp, mlist):
+    for dimobj in inputgrp.dimensions.values():
+      if dimobj.name in dimlist:
+        if DEBUG_PRINT:
+          print "dim:", dimobj.name, ">>",dimobj.size 
+        n = dimobj.name
+        f = n.encode(encoding)
+        mlist[f]=dimobj.size
+   
 def explode_value(inputgrp, mlist, f):
     t=inputgrp.variables[f].getValue().tolist()
     if DEBUG_PRINT:
-      print "value:", f,t
+      print "value:", f,">>", t
     mlist[f]=t
 
 ## f(peak_number)
@@ -116,12 +130,12 @@ def explode_peak(inputgrp, mlist, f):
     if len(t) == 0 :
       mlist[f]= []
       if DEBUG_PRINT:
-        print "peak:", f,[]
+        print "peak:", f,">>", []
     else :
       t=t[:]
       m = [i.item() for i in t]
       if DEBUG_PRINT:
-        print "peak:", f,m
+        print "peak:", f,">>", m
       mlist[f]= m
 
 def explode_code(inputgrp, mlist, f):
@@ -129,18 +143,18 @@ def explode_code(inputgrp, mlist, f):
     if len(v) == 0:
       mlist[f]=[]
       if DEBUG_PRINT:
-        print "code:", f,[]
+        print "code:", f,">>", []
     else:
       t=v[:].tolist()
       if DEBUG_PRINT:
-        print "code:", f,t
+        print "code:", f,">>", t
       mlist[f]=t
 
 def explode_attribute(inputgrp, mlist, f):
     t=getattr(inputgrp,f)
     t=t.encode(encoding)
     if DEBUG_PRINT:
-      print "attr:", f,t
+      print "attr:", f,">>",t
     mlist[f]=t
 
 
@@ -151,8 +165,11 @@ def process_for_file(dir,file):
 #    print inputgrp.variables.keys
 #    print "^^^^^"
 
+
 ## <type 'netCDF4._netCDF4.Variable'>
 ### extract variables
+
+    explode_dim(inputgrp, mlist)
 
     for f in valuelist :
        explode_value(inputgrp, mlist, f)
@@ -218,13 +235,19 @@ if not os.path.exists(datadir):
 if not os.path.exists(outdir):
   os.mkdir(outdir)
 
-onlydirs = [d for d in os.listdir(datadir) if os.path.isdir(os.path.join(datadir, d))]
+if datadir.endswith('.aia'):
+  targetdir = datadir[:-4]
+  base=os.path.basename(targetdir)
+  target=os.path.join(outdir,base)
+  process_for_directory(target,datadir)
+else:
+  onlydirs = [d for d in os.listdir(datadir) if os.path.isdir(os.path.join(datadir, d))]
 
-for dir in onlydirs:
-    if dir.endswith('.aia'):
-        targetdir = dir[:-4]
-        target=os.path.join(outdir,targetdir)
-        process_for_directory(target,os.path.join(datadir,dir))
-    else:
-        continue
+  for dir in onlydirs:
+      if dir.endswith('.aia'):
+          targetdir = dir[:-4]
+          target=os.path.join(outdir,targetdir)
+          process_for_directory(target,os.path.join(datadir,dir))
+      else:
+          continue
 

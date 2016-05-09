@@ -1,19 +1,25 @@
+//
 // sec-viewer
 //
 // Usage example:
 //  http://localhost/sec-viewer/view.html?
-//     http://localhost/data/SEC/IMPT4825_NTX_E2-3_020216.json
+//     http://localhost/data/SEC/IMPT6750_NTX_E2-3_020216-SIGNAL01.json
 //
 //  http://localhost/plotly/view.html?
-//     url=http://localhost/data/plotly/IMPT4825_NTX_E2-3_020216.json&baseline=0
+//     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL01.json&
+//     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL02.json&
+//     baseline=0
 //
 
 
 // GLOBAL tracking
+var SINGLE_BLOB=true;
+var saveBigBlob=null;
 var showNormalize=false;
 var saveBaseline=0;
 var saveBlob=null;
 var saveFirst=false;
+var saveURLs=[];
 
 // initial setup on the plot
 var init_baseline=saveBaseline;
@@ -31,18 +37,22 @@ function toggleNormalize() {
 
 
 function processArgs(args) {
-  var url="";
   var params = args[1].split('&');
+  var rc=0;
   for (var i=0; i < params.length; i++) {
     var param = unescape(params[i]);
     if (param.indexOf('=') == -1) {
       url=param.replace(new RegExp('/$'),'').trim();
+      saveURLs.push(url);
+      rc++;
       } else {
         var kvp = param.split('=');
         switch (kvp[0].trim()) {
           case 'url':
              {
              url=kvp[1].replace(new RegExp('/$'),'').trim();
+             saveURLs.push(url);
+             rc++;
              break;
              }
           case 'baseline':
@@ -51,10 +61,15 @@ function processArgs(args) {
              if(!isNaN(t))
                init_baseline=t;
              }
+          default:
+             {
+             var _utype=kvp[0].trim();
+             alertify.error("Error: Unable to handle param type, "+_utype);
+             }
        }
     }
   }
-  return url;
+  return rc;
 }
 
 
@@ -86,9 +101,8 @@ function loadBlobFromJsonFile(fname) {
 
 // initial plot to display
 function reset2InitPlot() {
-  blob=saveBlob;
 //XXX  do some resetting
-  displayInitPlot(blob);
+  displayInitPlot();
 }
 
 // under chaise/angular, the plot window has
@@ -102,8 +116,8 @@ window.onresize=function() {
    }
 }
 // initial plot to display
-function displayInitPlot(blob) {
-   addLineChart(blob);
+function displayInitPlot() {
+   addLineChart();
 }
 
 /*****MAIN*****/
@@ -113,21 +127,57 @@ jQuery(document).ready(function() {
   init_baseline=saveBaseline;
 
   var args=document.location.href.split('?');
-  if (args.length === 2) {
-    var url=processArgs(args);
-    var blob=loadBlobFromJsonFile(url);
-    processForPlotting(blob);
-    var dataKeys=setupUI(blob);
-    saveBlob=blob;
+  if (args.length ==2) {
+    var cnt=processArgs(args);
+
+    for(var i=0; i<cnt; i++) {
+      var blob=loadBlobFromJsonFile(saveURLs[i]);
+      if(!blob) {
+        window.console.log("ERROR, can not access ",saveURLs[i]);
+        continue;
+      }
+      if(SINGLE_BLOB) {
+        if(saveBigBlob) {
+          var _keys = Object.keys(blob);
+          for(var j=0; j<_keys.length;j++) {
+             var p=blob[_keys[j]];
+             saveBigBlob[_keys[j]]=p;
+          }
+        } else saveBigBlob=blob;
+        } else {
+          processForPlotting(blob);
+      }
+    }
+    if(SINGLE_BLOB && saveBigBlob) {
+      processForPlotting(saveBigBlob);
+    }
+    setupUI();
     } else {
       alertify.error("Usage: view.html?http://datapath/data.json");
       return;
   }
 
   if(!enableEmbedded) {
-    displayInitPlot(saveBlob);
+    displayInitPlot();
   }
 })
 
 
 
+/************** standalone test control ***********************/
+function saveSEC(fname) {
+}
+
+function loadSEC(fname) {
+}
+
+var isDummy=true;
+function dummyClick() {
+   isDummy = !isDummy;
+   var dtog = document.getElementById('dummy-toggle');
+   if(isDummy) {
+      dtog.style.color='blue';
+      } else {
+        dtog.style.color='black';
+   }
+}

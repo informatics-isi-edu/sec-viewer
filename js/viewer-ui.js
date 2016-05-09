@@ -1,5 +1,5 @@
 //
-// sec-viewer
+// sec-viewer/viewer-ui.js
 //
 // A flag to track whether viewer is
 // being used inside another window (i.e. Chaise), set enableEmbedded.
@@ -10,22 +10,22 @@ if (window.self !== window.top) {
 }
 
 function getKeys(blob) {
-  var keys = Object.keys(blob);
-  // skip 'time' key
-  var i=keys.indexOf('time');
-  if (i) {
-    keys.splice(i,1);
+  var _keys = Object.keys(blob);
+  var newkeys=[];
+  for(var i=0; i<_keys.length;i++) {
+    if( _keys[i].substr(-5) != "_time" ) {
+      newkeys.push(_keys[i]);
+    }
   }
-  return keys;
+  return newkeys;
 }
 
-function setupUI(blob) {
-  var dataKeys=getKeys(blob);
+function setupUI() {
+  var dataKeys=saveTrace;
   var bElm = document.getElementById('controlBlock');
   if(bElm) {
     setupCheckBtns(dataKeys);
   }
-  return dataKeys;
 }
 
 function setupCheckBtns(keys) {
@@ -33,10 +33,12 @@ function setupCheckBtns(keys) {
   if(list == null)
     return;
   list.innerHTML = '';
-  var outItem = '<div class="panel panel-default" style="width:30%">' +
+  var outItem = '<div class="panel panel-default" style="width:35%">' +
                        '<div class="list-group">';
   for (var i = 0; i < keys.length; i++) {
-    var oneItem = '<div class="list-group-item"><input type="checkbox" checked id="'+keys[i]+'" name="'+keys[i]+'" class="switch" onclick="toggleTrace('+i+')"/><label for="'+keys[i]+'">'+trimKey(keys[i])+'</label> </div>';
+// can not really trim the key anymore..
+//    var oneItem = '<div class="list-group-item"><input type="checkbox" checked id="'+keys[i]+'" name="'+keys[i]+'" class="switch" onclick="toggleTrace('+i+')"/><label for="'+keys[i]+'">'+trimKey(keys[i])+'</label> </div>';
+    var oneItem = '<div class="list-group-item"><input type="checkbox" checked id="'+keys[i]+'" name="'+keys[i]+'" class="switch" onclick="toggleTrace('+i+')"/><label for="'+keys[i]+'">'+keys[i]+'</label> </div>';
     outItem += oneItem;
   }
   outItem += '</div></div>';
