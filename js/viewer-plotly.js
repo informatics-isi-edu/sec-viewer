@@ -13,7 +13,7 @@ var saveTracking=[];// state of traces being shown (true/false)
 var saveColor=[];
 var saveStar=0;     // the trace (index in saveTracking) to be
                     // shown on the rangeslider-default is 0
-var saveSliderClicks=[];
+var saveSliderClicks=[5,9];
 
 var saveYmax=null;
 var saveYmin=null;
@@ -41,13 +41,12 @@ function getList(obj) {
 }
 
 // convert from minutes to nearest index
-function toIndex(y,mins)
+function toIndex(cnt,mins)
 {
-   var cnt=y.length; // 3000
+   //cnt, 3000
    var max=saveXmax; // 20
    var tmp=(cnt / saveXmax) * mins;
    var idx=Math.round(tmp);
-   window.console.log("idx is ",idx);
    return idx;
 }
 function toMinutes(y,idx)
@@ -56,7 +55,6 @@ function toMinutes(y,idx)
     var max=saveXmax;
     var tmp=(idx/cnt )*saveXmax;
     var mins=Math.round(tmp);
-    window.console.log("mins is ",mins);
     return mins;
 }
 
@@ -104,21 +102,20 @@ function processForPlotting(blob) {
         else 
            saveXmin=(min>saveXmin)?saveXmin:min;
 
-     var range=getNormRange(_y);
+     var range=getNormRange(_y.length);
+     window.console.log('range ', range);
      saveYnorm.push(normalizeWithFullY(_y, _y.slice(range[0],range[1])));
    }
 }
 
-function getNormRange(y) {
-  var first=5;
-  var next=9;
-  if (saveSliderClicks.length > 1) {
-    first=saveSliderClicks.pop();
-    next=saveSliderClicks.pop();
-  }
-  window.console.log("getNormRange ..",first," to ",next);
-  var s1=toIndex(y,first);
-  var s2=toIndex(y,next);
+// XXX something to look into, all traces are now assume
+// to be of same elapsed time.. ie. 3000 data points, 
+// 
+function getNormRange(count) {
+  first=saveSliderClicks[0];
+  next=saveSliderClicks[1];
+  var s1=toIndex(count,first);
+  var s2=toIndex(count,next);
   return [s1,s2];
 
 }
@@ -135,21 +132,12 @@ function addLineChart() {
   var _layout=getLinesDefaultLayout();
   savePlot=addAPlot('#myViewer',_data, _layout,600,400, {displaylogo: false});
 
-  _data=getSliderAt(saveX[saveStar], saveY[saveStar],saveTrace[saveStar],saveColor[saveStar]);
-  _layout=getSliderDefaultLayout();
-  saveSliderPlot=addAPlot('#myViewer',_data, _layout,600,400, {displayModeBar: false});
+  var _data2=getSliderAt(saveX[saveStar], saveY[saveStar],saveTrace[saveStar],saveColor[saveStar]);
+  var _layout2=getSliderDefaultLayout();
+  saveSliderPlot=addAPlot('#mySliderViewer',_data2, _layout2,600,400, {displayModeBar: false});
 
   saveSliderPlot.on('plotly_click', function(data){
-window.console.log("got clicked on slider plotly...");
-    var pts = '';
-    for(var i=0; i < data.points.length; i++){
-//      pts = 'x = '+data.points[i].x +'\ny = '+
-//            data.points[i].y.toPrecision(4) + '\n\n';
-      window.console.log("plotly_click: x=", data.points[i].x, "y=",data.points[i].y);
-      saveSliderClicks.push(data.points[i].x);
-window.console.log("range is now at ",saveSliderPlot.layout.xaxis.range);
-    }
-//    alertify.success('Closest point clicked:\n\n'+pts);
+    saveSliderClicks=saveSliderPlot.layout.xaxis.range;
   });
 
 }
@@ -166,9 +154,6 @@ function updateLineChart() {
   for(var i=0;i<cnt;i++) {
      if(saveTracking[i]==true) {
        if(showNormalize==true) { 
-         // refresh the normalized Y 
-         var range=getNormRange(saveY[i]);
-         saveYnorm[i]=normalizeWithFullY(saveY[i], saveY[i].slice(range[0],range[1]));
          _y.push(saveYnorm[i]);
          _x.push(saveX[i]); 
          } else {
@@ -183,24 +168,6 @@ function updateLineChart() {
   var _data=getLinesAt(_x, _y,_keys,_colors);
   var _layout=getLinesDefaultLayout();
   savePlot=addAPlot('#myViewer',_data, _layout,600,400, {displaylogo: false});
-
-  _data=getSliderAt(saveX[saveStar], saveY[saveStar],saveTrace[saveStar],saveColor[saveStar]);
-  _layout=getSliderDefaultLayout();
-  restoreSliderState(_layout,saveRange);
-  saveSliderPlot=addAPlot('#myViewer',_data, _layout,600,400, {displayModeBar: false});
-
-  saveSliderPlot.on('plotly_click', function(data){
-window.console.log("update, got clicked on plotly...");
-    var pts = '';
-    for(var i=0; i < data.points.length; i++){
-        pts = 'x = '+data.points[i].x +'\ny = '+
-            data.points[i].y.toPrecision(4) + '\n\n';
-        saveSliderClicks.push(data.points[i].x);
-window.console.log("range is now at ",saveSliderPlot.layout.xaxis.range);
-    }
-    alertify.success('Closest point clicked:\n\n'+pts);
-  });
-
 }
 
 function makeOne(xval,yval,trace,cval) {
@@ -245,8 +212,11 @@ function getSliderDefaultLayout(){
         margin: { t:50 },
         showlegend: true,
 
-        xaxis: { title: 'xaxis', fixrange: true, rangeslider:{} },
-        yaxis: { title: 'yaxis', fixedrange: true}
+        xaxis: { title: 'Click to save baseline range',
+                 fixedrange: true,
+                 rangeslider:{} 
+               },
+        yaxis: { fixedrange: true}
       }
   return p;
 }
@@ -311,6 +281,15 @@ function toggleTrace(idx) {
 // remake the normalized data set..
 function updateNormalizedLineChart() { 
   // reprocess normalizedYs
+  if(showNormalize) { // refresh the normalized Y 
+    var cnt=saveY.length;
+    for(var i=0;i<cnt;i++) {
+      var range=getNormRange(saveY[i].length);
+//      alertify.success('Normalizing between:\n\n'+range[0]+' and '+range[1]);
+      window.console.log('Normalizing range ', range);
+      saveYnorm[i]=normalizeWithFullY(saveY[i], saveY[i].slice(range[0],range[1]));
+    }
+  }
   updateLineChart();
 }
 
