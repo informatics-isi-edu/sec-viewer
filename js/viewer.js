@@ -32,7 +32,7 @@ function toggleNormalize() {
     } else {
       tog.style.color='white';
   }
-  updateLineChart();
+  updateNormalizedLineChart();
 }
 
 

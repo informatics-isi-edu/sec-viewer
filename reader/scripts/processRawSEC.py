@@ -7,6 +7,8 @@
 ##   extract the ordinate_values within and generate a single JSON file
 ##   per signal channel for visualization purpose
 ##   extract meta data and store as a separate file_meta.json file
+##   extract baseline information and store as a separate 
+##                                             file_base.json file
 ##
 ## usage: ./processRawSEC.py dataDir outDir
 ##
@@ -47,13 +49,15 @@ peaklist=[ 'peak_retention_time', 'peak_start_time', 'peak_end_time',
 codelist=[ 'peak_start_detection_code', 'peak_stop_detection_code' ]
 
 valuelist=[ 'detector_maximum_value', 'detector_minimum_value',
+            'actual_sampling_interval',
             'actual_run_time_length', 'actual_delay_time' ]
 
 attrlist=[ 'sample_name', 'detector_unit', 'detector_name',
            'injection_date_time_stamp', 'detection_method_name',
            'sample_id', 'dataset_completeness', 'aia_template_revision',
            'netcdf_revision','languages','HP_injection_time',
-           'experiment_title', 'operator_name', 'separation_experiment_type' ]
+           'retention_unit', 'experiment_title', 'operator_name', 
+           'separation_experiment_type' ]
 
 dimlist=[ 'point_number', 'peak_number', 'error_number']
 
@@ -69,7 +73,7 @@ def process_for_directory(target,dir) :
         if file.endswith('.cdf'):
             jlist={} 
             targetfile = file[:-4]
-            tlist,vlist,mlist=process_for_file(dir,file)
+            tlist,vlist,mlist,slist=process_for_file(dir,file)
 
             key= generate_dataset_name(target,targetfile)
             time_key=key+"_time"
@@ -77,8 +81,8 @@ def process_for_directory(target,dir) :
             head,tail=os.path.split(target)
             fullpath=os.path.join(head,key)
             f = open(fullpath+".json", 'w')
-            slist=list2dictionary(vlist)
-            jlist[key]=slist
+            tmplist=list2dictionary(vlist)
+            jlist[key]=tmplist
             jlist[time_key]=tlist
             f.write(json.dumps(jlist))
             f.close()
@@ -87,6 +91,11 @@ def process_for_directory(target,dir) :
             alist[meta_key]=mlist
             m.write(json.dumps(alist))
             m.close()
+            s = open(fullpath+"_base.json", 'w')
+            blist={}
+            blist[key]=slist
+            s.write(json.dumps(blist))
+            s.close()
         else:
             continue
 
@@ -108,6 +117,32 @@ def generate_dataset_name(dir,fname):
       return stub+"-"+fname
     else:
       return fname
+
+def generate_base_list(mlist):
+    print 'peak_number:', mlist['peak_number']
+    print 'baseline_start_time:', mlist['baseline_start_time']
+    print 'baseline_stop_time:', mlist['baseline_stop_time']
+    print 'baseline_start_value:', mlist['baseline_start_value']
+    print 'baseline_stop_value:', mlist['baseline_stop_value']
+    p=mlist['peak_number']
+    ilist={}
+    for i in range(0, p) :
+      item={}
+      item['start_value']=mlist['baseline_start_value'][i]
+      item['stop_value']=mlist['baseline_stop_value'][i]
+      item['start_time']=mlist['baseline_start_time'][i]
+      item['stop_time']=mlist['baseline_stop_time'][i]
+      item['style']={'color': 'green',
+                      'line' : 'solid',
+                      'width' : '2px'}
+      ilist[i]=item
+    blist={}
+    blist['text']='predefined baselines from hdf input file'
+    blist['segment']=ilist
+    blist['context']='default'
+   
+    zlist={ 'original': blist } 
+    return zlist
 
 def explode_dim(inputgrp, mlist):
     for dimobj in inputgrp.dimensions.values():
@@ -183,34 +218,47 @@ def process_for_file(dir,file):
     for f in attrlist:
        explode_attribute(inputgrp, mlist, f)
 
+
 ##numpy.ndarray
     actual_sampling_interval=inputgrp.variables['actual_sampling_interval'].getValue()
     actual_sampling_interval=actual_sampling_interval.tolist()
-##float
-    if DEBUG_PRINT:
-      print "actual_sampling_interval ",actual_sampling_interval
-    mlist['actual_sampling_interval']=actual_sampling_interval
-
 ##<type 'netCDF4._netCDF4.Variable'>
     ordinate_values=inputgrp.variables['ordinate_values']
     cnt=len(ordinate_values)
-    if DEBUG_PRINT:
-      print "ordinate_values length ",cnt
-    mlist['ordinate_values_cnt']=cnt
-
 ## unicode
     retention_unit=getattr(inputgrp,'retention_unit')
     retention_unit=retention_unit.encode(encoding)
-    if DEBUG_PRINT:
-      print "retention_unit ",retention_unit
-    mlist['retention_unit']=retention_unit
-
 ## generate an array of x points
     xlist=generate_x_array(retention_unit,actual_sampling_interval,cnt) 
+
+## generate baselist 
+    slist=generate_base_list(mlist)
     
 ## <type 'numpy.ndarray'>
     values=ordinate_values[:]
     vlist=values.tolist()
+
+    max_v=max(vlist)
+    min_v=min(vlist)
+    print("max data",max_v)
+    print("max idx",vlist.index(max_v))
+    print("min data",min_v)
+    print("min idx",vlist.index(min_v))
+
+    v1350=vlist[1350]
+    v749=vlist[749]
+    v750=vlist[750]
+    print(v749, v750, v1350)
+    v600=vlist[600]
+    v599=vlist[599]
+    print(v599, v600)
+    print len(vlist)
+#    m_i=vlist.index(1.341105e-07)
+#    print("xxxxxx")
+#    print(m_i)
+#    print("yyyyy")
+    print(vlist[1350])
+    
 
     inputgrp.close()
 
@@ -218,7 +266,7 @@ def process_for_file(dir,file):
 #    plot(values)
 #    show()
 
-    return xlist,vlist,mlist
+    return xlist,vlist,mlist,slist
    
 
 ################ MAIN #################################
