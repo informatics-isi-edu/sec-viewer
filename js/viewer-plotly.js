@@ -21,13 +21,16 @@ var saveXmax=null;
 var saveXmin=0;
 
 function getColor(idx) {
-  var stockColor=[
-                'rgba(0, 128, 0, .8)',
-                'rgba(152, 0, 0, .8)',
-                'rgba(0, 0, 255, .8)',
-                'rgba(255, 168, 0, .8)'];
-  var tmp=(idx % 4);
-  return stockColor[tmp];
+ var i=idx;
+ // from colorbrewer.js
+  var clist=colorbrewer.RdBu;
+  var cnt=clist.length;
+  if(idx > cnt) {
+    window.console.log("oh no..");    
+    i=idx % cnt;
+  }
+  var color=clist[i];
+  return color;
 }
 
 function getList(obj) {
