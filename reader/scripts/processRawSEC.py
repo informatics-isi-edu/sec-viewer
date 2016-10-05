@@ -122,14 +122,10 @@ def generate_base_list(mlist):
     print 'peak_number:', mlist['peak_number']
     print 'baseline_start_time:', mlist['baseline_start_time']
     print 'baseline_stop_time:', mlist['baseline_stop_time']
-    print 'baseline_start_value:', mlist['baseline_start_value']
-    print 'baseline_stop_value:', mlist['baseline_stop_value']
     p=mlist['peak_number']
     ilist={}
     for i in range(0, p) :
       item={}
-      item['start_value']=mlist['baseline_start_value'][i]
-      item['stop_value']=mlist['baseline_stop_value'][i]
       item['start_time']=mlist['baseline_start_time'][i]
       item['stop_time']=mlist['baseline_stop_time'][i]
       item['style']={'color': 'green',
@@ -244,21 +240,6 @@ def process_for_file(dir,file):
     print("max idx",vlist.index(max_v))
     print("min data",min_v)
     print("min idx",vlist.index(min_v))
-
-    v1350=vlist[1350]
-    v749=vlist[749]
-    v750=vlist[750]
-    print(v749, v750, v1350)
-    v600=vlist[600]
-    v599=vlist[599]
-    print(v599, v600)
-    print len(vlist)
-#    m_i=vlist.index(1.341105e-07)
-#    print("xxxxxx")
-#    print(m_i)
-#    print("yyyyy")
-    print(vlist[1350])
-    
 
     inputgrp.close()
 

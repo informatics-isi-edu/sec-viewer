@@ -4,10 +4,12 @@
 //
 var savePlot=null;  // point to the viewer node
 var saveSliderPlot=null;  // point to the viewer node
+
 var saveY=[];       // Ys values
 var saveX=[];       // X value, base on actual_sampling_interval
                     // in seconds
 var saveYnorm=[];   // Ys normalized values
+
 var saveTrace=[];   // key/label for the traces
 var saveTracking=[];// state of traces being shown (true/false)
 var saveColor=[];
@@ -20,17 +22,28 @@ var saveYmin=null;
 var saveXmax=null;
 var saveXmin=0;
 
-function getColor(idx) {
- var i=idx;
- // from colorbrewer.js
-  var clist=colorbrewer.RdBu;
-  var cnt=clist.length;
-  if(idx > cnt) {
-    window.console.log("oh no..");    
-    i=idx % cnt;
+var colorMap=[];
+
+// create a colormap of about 24 colors
+function setupColorMap() {
+  var c3=colorbrewer.Dark2[8];
+  var c1=colorbrewer.Set1[8];
+  var c2=colorbrewer.Paired[8];
+  colorMap.push('#1347AE'); // the default blue
+  for( var i=0; i<8; i++) {
+    colorMap.push(c1[i]);
   }
-  var color=clist[i];
-  return color;
+  for( var i=0; i<8; i++) {
+    colorMap.push(c2[i]);
+  }
+  for( var i=0; i<8; i++) {
+    colorMap.push(c3[i]);
+  }
+}
+
+function getColor(idx) {
+  var maxColors=colorMap.length;
+  return colorMap[idx % maxColors];
 }
 
 function getList(obj) {
@@ -67,6 +80,7 @@ function toMinutes(y,idx)
 //        number of y values:3000
 //        Xmin=0; Xmax=(0.4*3000)/60=20minutes
 function processForPlotting(blob) {
+   setupColorMap();
    var _trace=getKeys(blob); // skip '_time' line
    var cnt=_trace.length;
    for(var i=0;i<cnt;i++) {
@@ -106,8 +120,8 @@ function processForPlotting(blob) {
            saveXmin=(min>saveXmin)?saveXmin:min;
 
      var range=getNormRange(_y.length);
-     window.console.log('range ', range);
-     saveYnorm.push(normalizeWithFullY(_y, _y.slice(range[0],range[1])));
+window.console.log('normalization position range ', range);
+     saveYnorm.push(normalizeWithRange(_y, _y.slice(range[0],range[1])));
    }
 }
 
@@ -290,7 +304,7 @@ function updateNormalizedLineChart() {
       var range=getNormRange(saveY[i].length);
 //      alertify.success('Normalizing between:\n\n'+range[0]+' and '+range[1]);
       window.console.log('Normalizing range ', range);
-      saveYnorm[i]=normalizeWithFullY(saveY[i], saveY[i].slice(range[0],range[1]));
+      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[i].slice(range[0],range[1]));
     }
   }
   updateLineChart();
