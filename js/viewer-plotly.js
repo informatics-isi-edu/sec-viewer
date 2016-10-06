@@ -15,6 +15,7 @@ var saveTracking=[];// state of traces being shown (true/false)
 var saveColor=[];
 var saveStar=0;     // the trace (index in saveTracking) to be
                     // shown on the rangeslider-default is 0
+                    // initialize to the first one
 var saveSliderClicks=[5,9];
 
 var saveYmax=null;

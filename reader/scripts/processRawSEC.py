@@ -118,6 +118,7 @@ def generate_dataset_name(dir,fname):
     else:
       return fname
 
+## baseline stubs are styled green
 def generate_base_list(mlist):
     print 'peak_number:', mlist['peak_number']
     print 'baseline_start_time:', mlist['baseline_start_time']
