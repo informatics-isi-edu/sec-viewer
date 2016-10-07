@@ -32,6 +32,11 @@ import os
 import sys
 import pdb
 import numpy as np
+
+## blocking it before being called
+import matplotlib 
+matplotlib.use('Agg')
+
 from netCDF4 import Dataset
 from pylab import *
 import json

@@ -1,15 +1,29 @@
 
-Python 2.6 or newer
-(pip)
-numpy
-HDF5
+use Python 2.6 or newer 
+export PYTHONPATH=/usr/lib64/python2.7/site-packages
+(make sure to use the matching pip for your python)
 
-This package will work with netcdf3 or netcdf4.
-ncdf_1.6.6.tar.gz
+sudo pip2 install numpy 
+sudo yum install hdf5
+sudo yum install R
 
-----------------------
-reader
+sudo yum install netcdf-devel
+
+  ncdf_1.6.6.tar.gz (This package will work with netcdf3 or netcdf4.)
+sudo R CMD INSTALL ncdf_1.6.6.tar.gz
+
+sudo pip2 install netCDF4
+
+  install reader
 sudo python setup.py install
+
+
+--- running reader on dev.gpcrconsortium.org
+
+env PYTHONPATH=/usr/lib64/python2.7/site-packages processRawSEC.py usc/MING/data resultMing
+
+env PYTHONPATH=/usr/lib64/python2.7/site-packages processRawSEC.py /home/mei/public_html/raw
+-data/KOR_construct_screening  resultKOR
 
 
 
