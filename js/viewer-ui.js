@@ -37,8 +37,8 @@ function setupCheckBtns(keys) {
                        '<div class="list-group">';
   for (var i = 0; i < keys.length; i++) {
 // can not really trim the key anymore..
-//    var oneItem = '<div class="list-group-item"><input type="checkbox" checked id="'+keys[i]+'" name="'+keys[i]+'" class="switch" onclick="toggleTrace('+i+')"/><label for="'+keys[i]+'">'+trimKey(keys[i])+'</label> </div>';
-    var oneItem = '<div class="list-group-item"><input type="checkbox" checked id="'+keys[i]+'" name="'+keys[i]+'" class="switch" onclick="toggleTrace('+i+')"/><label for="'+keys[i]+'">'+keys[i]+'</label> </div>';
+//    var oneItem = '<div class="list-group-item"><input type="checkbox" checked id="'+keys[i]+'" name="'+keys[i]+'" class="switch" onclick="toggleStarTrace('+i+')"/><label for="'+keys[i]+'">'+trimKey(keys[i])+'</label> </div>';
+    var oneItem = '<div class="list-group-item"><input type="checkbox" checked id="'+keys[i]+'" name="'+keys[i]+'" class="switch" onclick="toggleStarTrace('+i+')"/><label for="'+keys[i]+'">'+keys[i]+'</label> </div>';
     outItem += oneItem;
   }
   outItem += '</div></div>';

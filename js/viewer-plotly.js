@@ -17,6 +17,7 @@ var saveStar=0;     // the trace (index in saveTracking) to be
                     // shown on the rangeslider-default is 0
                     // initialize to the first one
 var saveSliderClicks=[5,9];
+var trackClicks=[];
 
 var saveYmax=null;
 var saveYmin=null;
@@ -155,9 +156,50 @@ function addLineChart() {
   saveSliderPlot=addAPlot('#mySliderViewer',_data2, _layout2,600,400, {displayModeBar: false});
 
   saveSliderPlot.on('plotly_click', function(data){
-    saveSliderClicks=saveSliderPlot.layout.xaxis.range;
+//    saveSliderClicks=data.layout.xaxis.range;
+//window.console.log("a Click ->", saveSliderClicks[0]," ",saveSliderClicks[1]);
+
+// pick the first point 
+    clickOnX(data.points[0].x);
+        annotate_text = '('+data.points[0].x.toPrecision(2)+
+                        ','+data.points[0].y.toPrecision(2)+')';
+
+        annotation = {
+          text: annotate_text,
+          x: data.points[0].x.toPrecision(2),
+          y: parseFloat(data.points[0].y.toPrecision(2))
+        };
+
+        var ss = saveSliderPlot;
+        var annotations = ss.layout.annotations || [];
+// only keep the last annotations
+        if(annotations.length > 1 ) {
+          var last_anno=annotations[annotations.length-1];
+          annotations = [];
+          annotations.push(last_anno);
+        }
+        annotations.push(annotation);
+        Plotly.relayout(ss,{annotations: annotations});
   });
 
+}
+
+function clickOnX(new_x) {
+  YsaveSliderClicks=[5,9];
+  trackClicks.push(new_x);
+}
+
+function retrieveBaseRange()
+{
+  if(trackClicks.length > 1) {
+    var a=trackClicks[length-1];
+    var b=trackClicks[length-2];
+    trackClicks=[];
+    if(a > b) { return [a,b]; }
+    return [b,a];
+    } else {
+      return null;
+  }
 }
 
 function updateLineChart() {
@@ -229,8 +271,9 @@ function getSliderDefaultLayout(){
         height: 300,
         margin: { t:50 },
         showlegend: true,
+        hovermode: 'closest',
 
-        xaxis: { title: 'Click to save baseline range',
+        xaxis: { title: 'Click to mark baseline points',
                  fixedrange: true,
                  rangeslider:{} 
                },
@@ -249,11 +292,12 @@ function getLinesDefaultLayout(){
              range:[ saveYmin,saveYmax] };
 
   var p= {
-        width: 600,
+        width: 800,
         height: 300,
         margin: { t:50, b:40 },
         showlegend: true,
-        legend: { traceorder: 'reversed' },
+        hovermode: 'closest',
+        legend: { x:-0.5, y:1, traceorder: 'reversed' },
         xaxis: { title: 'Time(minutes)'},
         yaxis: tmp,
         };
@@ -290,8 +334,9 @@ function deleteTrace(which) {
 }
 ***/
 
-function toggleTrace(idx) {
-  saveTracking[idx] = !saveTracking[idx];
+function toggleStarTrace(idx) {
+// XXX do not toggle the visibility, 
+//  saveTracking[idx] = !saveTracking[idx];
   // rebuilt the plot
   updateLineChart();
 }
@@ -304,7 +349,7 @@ function updateNormalizedLineChart() {
     for(var i=0;i<cnt;i++) {
       var range=getNormRange(saveY[i].length);
 //      alertify.success('Normalizing between:\n\n'+range[0]+' and '+range[1]);
-      window.console.log('Normalizing range ', range);
+      window.console.log('Normalizing between ', range[0], ' and ' + range[1]);
       saveYnorm[i]=normalizeWithRange(saveY[i], saveY[i].slice(range[0],range[1]));
     }
   }
