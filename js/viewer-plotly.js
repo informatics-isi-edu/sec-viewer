@@ -236,6 +236,7 @@ function makeOne(xval,yval,trace,cval) {
            y:yval, 
            name:trimKey(trace), 
            marker: marker_val, 
+           hoverinfo: 'x+y',
            type:"scatter" };
   return t;
 }
@@ -246,6 +247,7 @@ function makeSliderOne(xval,yval,trace,cval) {
            y:yval,
            name:trimKey(trace), 
            marker: marker_val, 
+           hoverinfo: 'x+y',
            type:"scatter" };
   return t;
 }
