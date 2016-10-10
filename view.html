@@ -45,10 +45,12 @@
    <div id='myViewer'></div>
    <div id='mySliderViewer'></div>
 </div>
-<div id='controlBlock' style='width:100%; border:1px solid green;'>
-   <div id='dataList'> <!-- take a list of checkbox --> </div>
-   <div class="col-md-1 col-xs-1">
+<div id='controlBlock' style='width:100%;'>
+   <div id='dataList' style='display:none'> <!-- take a list of checkbox --> </div>
+   <div class="col-md-2 col-xs-2">
       <button id="normalizeBtn" type="button" class="btn btn-primary" onclick="toggleNormalize()">normalize</button>
+      <label for="qualityY" id='quaLabel' style='display:none'> Quality Ratio: </label>
+      <input type="text" id="qualityY" style='display:none' value=""/>
    </div>
 </div>
 </body>

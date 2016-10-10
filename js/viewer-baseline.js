@@ -14,8 +14,7 @@
 //
 
 // var saveY=[];       // Ys values
-var baseForY=[]
-
+var baseForY=[];  // should be pairs of baseStart, baseEnd
 
 function processXX() {
 
@@ -57,7 +56,7 @@ function processArray(base) {
 function normalizeWithZero(y,zerobase) {
   var n=[];
   var cnt=y.length;
-  var len=zero.length;
+  var len=zerobase.length;
   var p=processArray(zerobase);
   var colmin=p['mean'];
   window.console.log("mean is..",mean);
@@ -77,8 +76,8 @@ should be trace[1:peakIndex]??
 function normalizeWithPeak(y,peakbase) {
   var n=[];
   var cnt=y.length;
-  var len=base.length;
-  var p=processArray(base);
+  var len=peakbase.length;
+  var p=processArray(peakbase);
   var colmin=p['mean'];
   window.console.log("mean is..",mean);
   var max=Math.max.apply(Math,peakbase);

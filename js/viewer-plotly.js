@@ -8,7 +8,8 @@ var saveSliderPlot=null;  // point to the viewer node
 var saveY=[];       // Ys values
 var saveX=[];       // X value, base on actual_sampling_interval
                     // in seconds
-var saveYnorm=[];   // Ys normalized values
+var saveYnorm=[];   // Ys normalized values, default, with full y range
+var qualityY=[];    // normalized quality of Y, calculated from the baseline pts
 
 var saveTrace=[];   // key/label for the traces
 var saveTracking=[];// state of traces being shown (true/false)
@@ -16,8 +17,8 @@ var saveColor=[];
 var saveStar=0;     // the trace (index in saveTracking) to be
                     // shown on the rangeslider-default is 0
                     // initialize to the first one
-var saveSliderClicks=[5,9];
-var trackClicks=[];
+var trackSliderClicks=[]; // default baseline (in minutes)
+var trackRatio=null;
 
 var saveYmax=null;
 var saveYmin=null;
@@ -121,18 +122,20 @@ function processForPlotting(blob) {
         else 
            saveXmin=(min>saveXmin)?saveXmin:min;
 
-     var range=getNormRange(_y.length);
-window.console.log('normalization position range ', range);
-     saveYnorm.push(normalizeWithRange(_y, _y.slice(range[0],range[1])));
+   }
+   if(saveBaseStart < saveBaseEnd) {
+     trackSliderClicks=[saveBaseStart, saveBaseEnd ];
+     } else {
+        trackSliderClicks=[saveBaseEnd, saveBaseStart ];
    }
 }
 
 // XXX something to look into, all traces are now assume
 // to be of same elapsed time.. ie. 3000 data points, 
 // 
-function getNormRange(count) {
-  first=saveSliderClicks[0];
-  next=saveSliderClicks[1];
+function getNormRange(count, baseClicks) {
+  first=baseClicks[0];
+  next=baseClicks[1];
   var s1=toIndex(count,first);
   var s2=toIndex(count,next);
   return [s1,s2];
@@ -150,56 +153,50 @@ function addLineChart() {
   var _data=getLinesAt(_x, _y,_keys,_colors);
   var _layout=getLinesDefaultLayout();
   savePlot=addAPlot('#myViewer',_data, _layout,600,400, {displaylogo: false});
+  addOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
 
+//XXX, in case there is not star line, then need to make some changes here
   var _data2=getSliderAt(saveX[saveStar], saveY[saveStar],saveTrace[saveStar],saveColor[saveStar]);
   var _layout2=getSliderDefaultLayout();
   saveSliderPlot=addAPlot('#mySliderViewer',_data2, _layout2,600,400, {displayModeBar: false});
 
   saveSliderPlot.on('plotly_click', function(data){
-//    saveSliderClicks=data.layout.xaxis.range;
-//window.console.log("a Click ->", saveSliderClicks[0]," ",saveSliderClicks[1]);
-
-// pick the first point 
-    clickOnX(data.points[0].x);
-        annotate_text = '('+data.points[0].x.toPrecision(2)+
+    annotate_text = '('+data.points[0].x.toPrecision(2)+
                         ','+data.points[0].y.toPrecision(2)+')';
 
-        annotation = {
-          text: annotate_text,
-          x: data.points[0].x.toPrecision(2),
-          y: parseFloat(data.points[0].y.toPrecision(2))
-        };
+    annotation = {
+      text: annotate_text,
+      x: parseInt(data.points[0].x.toPrecision(2)),
+      y: parseFloat(data.points[0].y.toPrecision(2))
+    };
 
-        var ss = saveSliderPlot;
-        var annotations = ss.layout.annotations || [];
+    var ss = saveSliderPlot;
+    var annotations = ss.layout.annotations || [];
 // only keep the last annotations
-        if(annotations.length > 1 ) {
-          var last_anno=annotations[annotations.length-1];
-          annotations = [];
-          annotations.push(last_anno);
-        }
-        annotations.push(annotation);
-        Plotly.relayout(ss,{annotations: annotations});
+    if(annotations.length > 1 ) {
+      var last_anno=annotations[annotations.length-1];
+      annotations = [];
+      annotations.push(last_anno);
+    }
+    annotations.push(annotation);
+    if(annotations.length == 2) { // reset the trackSliderClicks..
+      var n1=annotations[0].x;
+      var n2=annotations[1].x;
+
+      if(n2 > n1) { 
+        trackSliderClicks = [ n1, n2 ];
+        } else {
+          trackSliderClicks = [ n2, n1 ];
+      }
+      // if in normalized mode, recalculate and redraw
+      if(showNormalize) { // refresh the normalized Y 
+        updateNormalizedLineChart();
+        } else {
+          replaceOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
+      }
+    }
+    Plotly.relayout(ss,{annotations: annotations});
   });
-
-}
-
-function clickOnX(new_x) {
-  YsaveSliderClicks=[5,9];
-  trackClicks.push(new_x);
-}
-
-function retrieveBaseRange()
-{
-  if(trackClicks.length > 1) {
-    var a=trackClicks[length-1];
-    var b=trackClicks[length-2];
-    trackClicks=[];
-    if(a > b) { return [a,b]; }
-    return [b,a];
-    } else {
-      return null;
-  }
 }
 
 function updateLineChart() {
@@ -228,6 +225,7 @@ function updateLineChart() {
   var _data=getLinesAt(_x, _y,_keys,_colors);
   var _layout=getLinesDefaultLayout();
   savePlot=addAPlot('#myViewer',_data, _layout,600,400, {displaylogo: false});
+  addOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
 }
 
 function makeOne(xval,yval,trace,cval) {
@@ -236,6 +234,7 @@ function makeOne(xval,yval,trace,cval) {
            y:yval, 
            name:trimKey(trace), 
            marker: marker_val, 
+           line : { width: 3},
            hoverinfo: 'x+y',
            type:"scatter" };
   return t;
@@ -252,11 +251,23 @@ function makeSliderOne(xval,yval,trace,cval) {
   return t;
 }
 
+// should add the star as the last one
 function getLinesAt(x,y,trace,color) {
   var cnt=y.length;
   var data=[];
+  var hold_star=null;
   for (var i=0;i<cnt; i++) {
-    data.push(makeOne(x[i],y[i],trace[i],color[i])); 
+    var one= makeOne(x[i],y[i],trace[i],color[i]); 
+    if(i == saveStar) {
+// make it dashed lines
+        one.line = { dash : 'dash', width: 2 };
+        hold_star=one;
+      } else {
+      data.push(one);
+    }
+  }
+  if(hold_star) {
+    data.push(hold_star);
   }
   return data;
 }
@@ -345,15 +356,24 @@ function toggleStarTrace(idx) {
 
 // remake the normalized data set..
 function updateNormalizedLineChart() { 
+  var quaY= document.getElementById('qualityY');
+  var quaLabel= document.getElementById('quaLabel');
   // reprocess normalizedYs
   if(showNormalize) { // refresh the normalized Y 
     var cnt=saveY.length;
     for(var i=0;i<cnt;i++) {
-      var range=getNormRange(saveY[i].length);
-//      alertify.success('Normalizing between:\n\n'+range[0]+' and '+range[1]);
-      window.console.log('Normalizing between ', range[0], ' and ' + range[1]);
-      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[i].slice(range[0],range[1]));
+      var range=getNormRange(saveY[i].length, trackSliderClicks);
+//?? XXX is it with range values from star lines to saveY
+      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStar].slice(range[0],range[1]));
+      qualityY[i]=calcTrackRatio(saveY[i], range);
+window.console.log("quality at ",i," is ",qualityY[i]);
     }
+    quaY.value=qualityY[1]; // XXX set to first one for now
+    quaY.style.display='';
+    quaLabel.style.display='';
+    } else {
+      quaY.style.display='none';
+      quaLabel.style.display='none';
   }
   updateLineChart();
 }
@@ -362,13 +382,64 @@ function updateNormalizedLineChart() {
 function saveSliderState() {
   var slider=saveSliderPlot;
   var range=slider.layout.xaxis.range;
-  window.console.log(range);
   return range;
 }
 
 // set range
 function restoreSliderState(layout, range) {
   layout.xaxis.range=range;
+}
+
+function addOverlayArea(aPlot, xstart, xend, ystart, yend)
+{
+//window.console.log("addOverlay..",xstart, " ends..", xend);
+  var _s = { type: 'rect',
+             xref: 'x',
+             yref: 'y',
+             x0: xstart,
+             x1: xend,
+             y0: ystart,
+             y1: yend,
+             fillcolor: '#d3d3d3',
+             opacity: 0.1,
+             line: { width: 1 }
+  };
+  // _layout.shapes = _update
+  var _layout=aPlot.layout;
+  var _shapes = _layout.shapes;
+  if(_shapes != null) {
+    _shapes.push(_s);
+    } else {
+     _shapes= [_s];
+  }
+  var update = { shapes : _shapes };
+  Plotly.relayout(aPlot,update);
+}
+
+function replaceOverlayArea(aPlot, xstart, xend, ystart, yend)
+{
+  var _s = { type: 'rect',
+             xref: 'x',
+             yref: 'y',
+             x0: xstart,
+             x1: xend,
+             y0: ystart,
+             y1: yend,
+             fillcolor: '#d3d3d3',
+             opacity: 0.1,
+             line: { width: 1 }
+  };
+  var update = { shapes : [ _s ] };
+  Plotly.relayout(aPlot,update);
+}
+
+function calcTrackRatio(targetY, range)
+{
+  var _slice=targetY.slice(range[0],range[1]);
+  var _sz=_slice.length;
+  var _y1=_slice[0];
+  var _y2=_slice[2];
+  return (_y1/_y2);
 }
 
 /*********************************************/

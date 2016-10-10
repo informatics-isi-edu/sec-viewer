@@ -8,7 +8,7 @@
 //  http://localhost/plotly/view.html?
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL01.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL02.json&
-//     baseline=0
+//     baseStart=5&baseEnd=9
 //
 
 
@@ -20,9 +20,8 @@ var saveBaseline=0;
 var saveBlob=null;
 var saveFirst=false;
 var saveURLs=[];
-
-// initial setup on the plot
-var init_baseline=saveBaseline;
+var saveBaseStart=5;
+var saveBaseEnd=9;
 
 function toggleNormalize() {
   showNormalize = ! showNormalize;
@@ -55,11 +54,19 @@ function processArgs(args) {
              rc++;
              break;
              }
-          case 'baseline':
+          case 'baseStart':
              {
              var t=parseInt(kvp[1]);
              if(!isNaN(t))
-               init_baseline=t;
+               saveBaseStart=t;
+             break;
+             }
+          case 'baseEnd':
+             {
+             var t=parseInt(kvp[1]);
+             if(!isNaN(t))
+               saveBaseEnd=t;
+             break;
              }
           default:
              {
@@ -122,10 +129,6 @@ function displayInitPlot() {
 
 /*****MAIN*****/
 jQuery(document).ready(function() {
-
-  // defaults from viewer-user.js
-  init_baseline=saveBaseline;
-
   var args=document.location.href.split('?');
   if (args.length ==2) {
     var cnt=processArgs(args);
