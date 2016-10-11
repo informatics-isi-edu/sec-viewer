@@ -123,7 +123,6 @@ def generate_dataset_name(dir,fname):
     else:
       return fname
 
-## baseline stubs are styled green
 def generate_base_list(mlist):
     print 'peak_number:', mlist['peak_number']
     print 'baseline_start_time:', mlist['baseline_start_time']
@@ -134,9 +133,6 @@ def generate_base_list(mlist):
       item={}
       item['start_time']=mlist['baseline_start_time'][i]
       item['stop_time']=mlist['baseline_stop_time'][i]
-      item['style']={'color': 'green',
-                      'line' : 'solid',
-                      'width' : '2px'}
       ilist[i]=item
     blist={}
     blist['text']='predefined baselines from hdf input file'
