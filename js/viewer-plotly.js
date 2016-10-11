@@ -282,11 +282,12 @@ function getSliderDefaultLayout(){
   var p= {
         width: 600,
         height: 300,
+        title: 'Click to mark baseline points',
         margin: { t:50 },
         showlegend: true,
         hovermode: 'closest',
 
-        xaxis: { title: 'Click to mark baseline points',
+        xaxis: { title: 'Drag range tabs to focus on a section',
                  fixedrange: true,
                  rangeslider:{} 
                },
