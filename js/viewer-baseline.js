@@ -1,7 +1,7 @@
 //
 // sec-viewer/viewer-baseline.js
 //
-// support routines for normalizing y  with baseline
+// support routines for normalizing y with baseline
 // managing the baselines per y trace
 // 
 // for each trace in saveY, needs a structure to manage

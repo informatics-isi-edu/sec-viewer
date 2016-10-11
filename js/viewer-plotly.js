@@ -409,7 +409,7 @@ function addOverlayArea(aPlot, xstart, xend, ystart, yend)
              y0: ystart,
              y1: yend,
              fillcolor: '#d3d3d3',
-             opacity: 0.1,
+             opacity: 0.2,
              line: { width: 1 }
   };
   // _layout.shapes = _update
@@ -434,7 +434,7 @@ function replaceOverlayArea(aPlot, xstart, xend, ystart, yend)
              y0: ystart,
              y1: yend,
              fillcolor: '#d3d3d3',
-             opacity: 0.1,
+             opacity: 0.2,
              line: { width: 1 }
   };
   var update = { shapes : [ _s ] };
