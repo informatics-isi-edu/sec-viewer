@@ -161,13 +161,20 @@ function addLineChart() {
   saveSliderPlot=addAPlot('#mySliderViewer',_data2, _layout2,600,400, {displayModeBar: false});
 
   saveSliderPlot.on('plotly_click', function(data){
-    annotate_text = '('+data.points[0].x.toPrecision(2)+
-                        ','+data.points[0].y.toPrecision(2)+')';
+    var point = data.points[0];
+//    var px=point.xaxis.d2l(point.x);
+//    var py=point.xaxis.d2l(point.y);
+    var x=parseFloat(data.points[0].x.toPrecision(4));
+    var y=parseFloat(data.points[0].y.toPrecision(4));
+    annotate_text = '('+x+','+y+')';
 
     annotation = {
       text: annotate_text,
-      x: parseInt(data.points[0].x.toPrecision(2)),
-      y: parseFloat(data.points[0].y.toPrecision(2))
+      x: x,
+      y: y,
+      showarrow: true,
+      ax: 0,
+      ay: -20 
     };
 
     var ss = saveSliderPlot;
