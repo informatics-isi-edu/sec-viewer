@@ -8,30 +8,69 @@
 //  http://localhost/plotly/view.html?
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL01.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL02.json&
-//     baseStart=5&baseEnd=9
+//     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL03.json&
+//     baseStart=5&baseEnd=9&base=3&standard=1
 //
+// basestart, baseend is in in minutes
+// baseline, standard is i_th url in the list (n-1)
+// for the example, the default base segment is from minute-5 to minute-9
+//                  baseline is signal03 and standardline is signal01  
+//                  default is 0 is standardline, and 1 is baseline but if
+//                  assigned with -1, then that means it is missing in the set
+//                 
 
 
 // GLOBAL tracking
 var SINGLE_BLOB=true;
 var saveBigBlob=null;
 var showNormalize=false;
-var saveBaseline=0;
+var smoothBaseline=false;
 var saveBlob=null;
 var saveFirst=false;
 var saveURLs=[];
-var saveBaseStart=5;
-var saveBaseEnd=9;
+var saveBaseStart=-1;
+var saveBaseEnd=-1;
 
+// this is minmax normalization
 function toggleNormalize() {
   showNormalize = ! showNormalize;
-  var tog = document.getElementById('normalizeBtn');
+  var nBtn = document.getElementById('normalizeBtn');
+  var bBtn = document.getElementById('baselineBtn');
   if(showNormalize) {
-    tog.style.color='red';
+    bBtn.disabled=true;
+    document.getElementById('resetBtn').disabled=false;
+    document.getElementById('againBtn').disabled=false;
+    nBtn.style.color='red';
     } else {
-      tog.style.color='white';
+      bBtn.disabled=false;
+      nBtn.style.color='white';
   }
   updateNormalizedLineChart();
+}
+
+// normalize to the baseline signal
+function toggleBaseline() {
+  smoothBaseline = ! smoothBaseline;
+  var bBtn = document.getElementById('baselineBtn');
+  var nBtn = document.getElementById('normalizeBtn');
+  if(smoothBaseline) {
+      nBtn.disabled=true;
+      bBtn.style.color='red';
+    } else {
+      nBtn.disabled=false;
+      bBtn.style.color='white';
+  }
+  updateWithBaselineLineChart();
+}
+
+function minmaxAgain() {
+  updateNormalizedLineChart();
+}
+
+function resetSlider() {
+  resetSliderPlot();
+  updateNormalizedLineChart();
+//  toggleNormalize();
 }
 
 
@@ -66,6 +105,21 @@ function processArgs(args) {
              var t=parseInt(kvp[1]);
              if(!isNaN(t))
                saveBaseEnd=t;
+             break;
+             }
+          case 'base':
+             {
+             var t=parseInt(kvp[1]);
+             if(!isNaN(t))
+               saveBase=(t==-1)?t:t-1;
+             break;
+             }
+          case 'standard':
+             {
+             var t=parseInt(kvp[1]);
+             if(!isNaN(t)) {
+               saveStandard=(t==-1)?t:t-1;
+             }
              break;
              }
           default:

@@ -26,6 +26,17 @@ baseline.push(base);
 
 }
 
+function normalizeWithBaseline(y, ybase) {
+  var n=[];
+  var cnt=y.length;
+  var t;
+  for(var i=0;i<cnt;i++) {
+    t=(y[i]-ybase[i]);
+    n.push(t)
+  }
+  return n;
+}
+
 //http://www.originlab.com/doc/X-Function/ref/cnormalize#Algorithm
 //minmaxbase
 function normalizeWithRange(y,minmaxbase) {

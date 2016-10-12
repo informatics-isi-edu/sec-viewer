@@ -6,18 +6,30 @@ var savePlot=null;  // point to the viewer node
 var saveSliderPlot=null;  // point to the viewer node
 
 var saveY=[];       // Ys values
+var smoothedY=false;
+var saveYsmooth=[];   // smoothed Ys value to experiment baseline signal, calculated 
+                        // once only
 var saveX=[];       // X value, base on actual_sampling_interval
                     // in seconds
-var saveYnorm=[];   // Ys normalized values, default, with full y range
+var saveYnorm=[];   // Ys normalized values, default, with full y range, recalculated
+                    // with each normalizeButton toggling
 var qualityY=[];    // normalized quality of Y, calculated from the baseline pts
 
 var saveTrace=[];   // key/label for the traces
 var saveTracking=[];// state of traces being shown (true/false)
 var saveColor=[];
-var saveStar=0;     // the trace (index in saveTracking) to be
-                    // shown on the rangeslider-default is 0
-                    // initialize to the first one
-var trackSliderClicks=[]; // default baseline (in minutes)
+
+// in a list of urls being passed, it is always assumed that the
+// first url is the 'standard' signal per device per site
+// 2nd url is the 'baseline' of the experiment 
+// rest of them are the different signal data
+// but these could be changed using  base and standard commandline options
+// to change
+var saveBase= 1;
+var saveStandard=0;     // the trace (index in saveTracking) to be
+                        // shown on the rangeslider-default is 0
+var trackSliderClicks=[]; // default baseline range (in minutes)
+                          // saveBaseStart, saveBaseEnd set from commandline
 var trackRatio=null;
 
 var saveYmax=null;
@@ -123,11 +135,18 @@ function processForPlotting(blob) {
            saveXmin=(min>saveXmin)?saveXmin:min;
 
    }
-   if(saveBaseStart < saveBaseEnd) {
-     trackSliderClicks=[saveBaseStart, saveBaseEnd ];
-     } else {
-        trackSliderClicks=[saveBaseEnd, saveBaseStart ];
+   // if either of saveBaseStart or saveBaseEnd is -1, then
+   // initialize them to the full range of x axis
+   if(saveBaseStart == -1 || saveBaseEnd == -1) {
+     saveBaseStart=saveXmin;
+     saveBaseEnd=saveXmax;
    }
+   if(saveBaseStart > saveBaseEnd) {
+     var t=saveBaseStart;
+     saveBaseStart=saveBaseEnd;
+     saveBaseEnd=t;
+   }
+   trackSliderClicks=[saveBaseStart, saveBaseEnd ];
 }
 
 // XXX something to look into, all traces are now assume
@@ -153,13 +172,11 @@ function addLineChart() {
   var _data=getLinesAt(_x, _y,_keys,_colors);
   var _layout=getLinesDefaultLayout();
   savePlot=addAPlot('#myViewer',_data, _layout,600,400, {displaylogo: false});
-  addOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
+//  addOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
 
-//XXX, in case there is not star line, then need to make some changes here
-  var _data2=getSliderAt(saveX[saveStar], saveY[saveStar],saveTrace[saveStar],saveColor[saveStar]);
-  var _layout2=getSliderDefaultLayout();
-  saveSliderPlot=addAPlot('#mySliderViewer',_data2, _layout2,600,400, {displayModeBar: false});
+  saveSliderPlot=initialSliderPlot();
 
+/************************************
   saveSliderPlot.on('plotly_click', function(data){
     var point = data.points[0];
 //    var px=point.xaxis.d2l(point.x);
@@ -204,10 +221,10 @@ function addLineChart() {
     }
     Plotly.relayout(ss,{annotations: annotations});
   });
+*****************************************/
 }
 
 function updateLineChart() {
-  var saveRange=saveSliderState();
   $('#myViewer').empty();
   var cnt=saveTracking.length; 
   var _y=[];
@@ -215,24 +232,42 @@ function updateLineChart() {
   var _colors=[];
   var _keys=[];
 
+  var targetY=saveY;
+  if(showNormalize)
+    targetY=saveYnorm;
+  if(smoothBaseline)
+    targetY=saveYsmooth;
+
   for(var i=0;i<cnt;i++) {
-     if(saveTracking[i]==true) {
-       if(showNormalize==true) { 
-         _y.push(saveYnorm[i]);
-         _x.push(saveX[i]); 
-         } else {
-           _y.push(saveY[i]);
-           _x.push(saveX[i]); 
-       }
+     if(saveTracking[i]) {
+       _y.push(targetY[i]);
+       _x.push(saveX[i]); 
        _colors.push(saveColor[i]);
        _keys.push(saveTrace[i]);
-       } else {
      }
   }
   var _data=getLinesAt(_x, _y,_keys,_colors);
   var _layout=getLinesDefaultLayout();
   savePlot=addAPlot('#myViewer',_data, _layout,600,400, {displaylogo: false});
-  addOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
+  if(showNormalize) {
+    addOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
+    } else { 
+      removeOverlayArea(savePlot);
+  }
+}
+
+function initialSliderPlot() {
+
+  var _data2=getSliderAt(saveX[saveStandard], saveY[saveStandard],saveTrace[saveStandard],'rgb(0,0,0)');
+  var _layout2=getSliderDefaultLayout(trackSliderClicks, [saveXmin, saveXmax]);
+  var plot=addAPlot('#mySliderViewer',_data2, _layout2,600,400, {displayModeBar: false});
+  return plot;
+}
+
+function resetSliderPlot() {
+  $('#mySliderViewer').empty();
+  trackSliderClicks=[saveBaseStart, saveBaseEnd]; 
+  saveSliderPlot=initialSliderPlot();
 }
 
 function makeOne(xval,yval,trace,cval) {
@@ -263,19 +298,26 @@ function getLinesAt(x,y,trace,color) {
   var cnt=y.length;
   var data=[];
   var hold_star=null;
+  var hold_base=null;
   for (var i=0;i<cnt; i++) {
     var one= makeOne(x[i],y[i],trace[i],color[i]); 
-    if(i == saveStar) {
-// make it dashed lines
-        one.line = { dash : 'dash', width: 2 };
-        hold_star=one;
-      } else {
+    if(i != saveStandard && i != saveBase) {
       data.push(one);
+      } else {
+// make it dashed lines
+        if(i == saveStandard) {
+          one.line = { dash : 'dash', width: 2 };
+          one.marker.color= 'rgb(0,0,0)';
+          hold_star=one;
+          } else {
+            hold_base=one;
+        }
     }
   }
-  if(hold_star) {
+  if(hold_base) 
+    data.push(hold_base);
+  if(hold_star) 
     data.push(hold_star);
-  }
   return data;
 }
 
@@ -285,18 +327,23 @@ function getSliderAt(x,y,trace,color) {
   return data;
 }
 
-function getSliderDefaultLayout(){
+function getSliderDefaultLayout(subRange, fullRange ){
   var p= {
-        width: 600,
+        width: 800,
         height: 300,
-        title: 'Click to mark baseline points',
         margin: { t:50 },
         showlegend: true,
         hovermode: 'closest',
-
         xaxis: { title: 'Drag range tabs to focus on a section',
-                 fixedrange: true,
-                 rangeslider:{} 
+                 range: subRange,
+                 rangeslider: {
+                    visible: true,
+                    thickness: 0.2,
+                    bgcolor: "#fafafa",
+                    bordercolor: "#337ab7",
+                    borderwidth: 2,
+                    range: fullRange
+                 }
                },
         yaxis: { fixedrange: true}
       }
@@ -318,7 +365,6 @@ function getLinesDefaultLayout(){
         margin: { t:50, b:40 },
         showlegend: true,
         hovermode: 'closest',
-        legend: { x:-0.5, y:1, traceorder: 'reversed' },
         xaxis: { title: 'Time(minutes)'},
         yaxis: tmp,
         };
@@ -347,55 +393,51 @@ function getAPlot(divname) {
   return gd;
 }
 
-/***
-function deleteTrace(which) {
-  var idx=saveTrace.indexOf(which);
-  window.console.log("delete a trace..");
-  Plotly.deleteTraces(savePlot, idx);
-}
-***/
-
-function toggleStarTrace(idx) {
-// XXX do not toggle the visibility, 
-//  saveTracking[idx] = !saveTracking[idx];
-  // rebuilt the plot
-  updateLineChart();
-}
-
 // remake the normalized data set..
 function updateNormalizedLineChart() { 
+  trackSliderClicks=getSliderState();
+  var normDiv= document.getElementById('normalizeDiv');
   var quaY= document.getElementById('qualityY');
-  var quaLabel= document.getElementById('quaLabel');
   // reprocess normalizedYs
   if(showNormalize) { // refresh the normalized Y 
     var cnt=saveY.length;
     for(var i=0;i<cnt;i++) {
       var range=getNormRange(saveY[i].length, trackSliderClicks);
-//?? XXX is it with range values from star lines to saveY
-      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStar].slice(range[0],range[1]));
+      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStandard].slice(range[0],range[1]));
       qualityY[i]=calcTrackRatio(saveY[i], range);
 window.console.log("quality at ",i," is ",qualityY[i]);
     }
+    normDiv.style.display='';
     quaY.value=qualityY[1]; // XXX set to first one for now
-    quaY.style.display='';
-    quaLabel.style.display='';
     } else {
-      quaY.style.display='none';
-      quaLabel.style.display='none';
+      normDiv.style.display='none';
+  }
+  updateLineChart();
+}
+
+
+
+function updateWithBaselineLineChart() {
+  // calculate the smoothed one if not there.
+  if(!smoothedY) { 
+    var cnt=saveY.length;
+    for(var i=0;i<cnt;i++) {
+      if(i != saveStandard ) {
+        var s=normalizeWithBaseline(saveY[i], saveY[saveBase]);
+        saveYsmooth[i]=s;
+        } else {
+          saveYsmooth[i]=saveY[i];
+      }
+    }
   }
   updateLineChart();
 }
 
 // save range
-function saveSliderState() {
+function getSliderState() {
   var slider=saveSliderPlot;
   var range=slider.layout.xaxis.range;
   return range;
-}
-
-// set range
-function restoreSliderState(layout, range) {
-  layout.xaxis.range=range;
 }
 
 function addOverlayArea(aPlot, xstart, xend, ystart, yend)
@@ -409,7 +451,7 @@ function addOverlayArea(aPlot, xstart, xend, ystart, yend)
              y0: ystart,
              y1: yend,
              fillcolor: '#d3d3d3',
-             opacity: 0.2,
+             opacity: 0.3,
              line: { width: 1 }
   };
   // _layout.shapes = _update
@@ -434,12 +476,19 @@ function replaceOverlayArea(aPlot, xstart, xend, ystart, yend)
              y0: ystart,
              y1: yend,
              fillcolor: '#d3d3d3',
-             opacity: 0.2,
+             opacity: 0.3,
              line: { width: 1 }
   };
   var update = { shapes : [ _s ] };
   Plotly.relayout(aPlot,update);
 }
+
+function removeOverlayArea(aPlot)
+{
+  var update = { shapes : [] };
+  Plotly.relayout(aPlot,update);
+}
+
 
 function calcTrackRatio(targetY, range)
 {
