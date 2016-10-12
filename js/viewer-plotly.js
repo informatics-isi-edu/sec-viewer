@@ -41,10 +41,11 @@ var colorMap=[];
 
 // create a colormap of about 24 colors
 function setupColorMap() {
-  var c3=colorbrewer.Dark2[8];
-  var c1=colorbrewer.Set1[8];
-  var c2=colorbrewer.Paired[8];
+  var c1=colorbrewer.Dark2[8];
+  var c2=colorbrewer.Set1[8];
+  var c3=colorbrewer.Paired[8];
   colorMap.push('#1347AE'); // the default blue
+  colorMap.push('#DD0202'); // the default red
   for( var i=0; i<8; i++) {
     colorMap.push(c1[i]);
   }

@@ -31,6 +31,7 @@ var saveURLs=[];
 var saveBaseStart=-1;
 var saveBaseEnd=-1;
 
+
 // this is minmax normalization
 function toggleNormalize() {
   showNormalize = ! showNormalize;
@@ -183,6 +184,7 @@ function displayInitPlot() {
 
 /*****MAIN*****/
 jQuery(document).ready(function() {
+
   var args=document.location.href.split('?');
   if (args.length ==2) {
     var cnt=processArgs(args);
