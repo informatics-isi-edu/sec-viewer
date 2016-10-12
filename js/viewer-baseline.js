@@ -106,9 +106,37 @@ window.console.log("mean is..",mean);
 /*
 http://stackoverflow.com/questions/11301438/return-index-of-greatest-value-in-an-array
 */
+
+function _getMaxIndex(a) {
+  var len=a.length;
+  var _max=a[0];
+  var _idx=1;
+  for(var i=1; i<len; i++) {
+    if(_max < a[i]) {
+      _max=a[i];
+      _idx=i;
+    }
+  }
+  return _idx;
+}
+function _getMinIndex(a) {
+  var len=a.length;
+  var _min=a[0];
+  var _idx=1;
+  for(var i=1; i<len; i++) {
+    if(_min > a[i]) {
+      _min=a[i];
+      _idx=i;
+    }
+  }
+  return _idx;
+}
+
 function getIndexMinMax(a) {
-  var iOfMax = a.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
-  var iOfMin = a.reduce((iMin, x, i, arr) => x < arr[iMin] ? i : iMin, 0);
+//  var iOfMax = a.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
+//  var iOfMin = a.reduce((iMin, x, i, arr) => x < arr[iMin] ? i : iMin, 0);
+  var iOfMax = _getMaxIndex(a);
+  var iOfMin = _getMinIndex(a);
   return [iOfMin, iOfMax];
 }
 
