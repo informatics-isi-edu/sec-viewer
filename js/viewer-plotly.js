@@ -85,7 +85,7 @@ function toMinutes(y,idx)
     var cnt=y.length;
     var max=saveXmax;
     var tmp=(idx/cnt )*saveXmax;
-    var mins=Math.round(tmp);
+    var mins=(Math.round(tmp*1000)/1000);
     return mins;
 }
 
@@ -169,59 +169,8 @@ function addLineChart() {
   var _keys=saveTrace;
   var _colors=saveColor;
 
-  var _data=getLinesAt(_x, _y,_keys,_colors);
-  var _layout=getLinesDefaultLayout();
-  savePlot=addAPlot('#myViewer',_data, _layout,600,400, {displaylogo: false});
-//  addOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
-
-  saveSliderPlot=initialSliderPlot();
-
-/************************************
-  saveSliderPlot.on('plotly_click', function(data){
-    var point = data.points[0];
-//    var px=point.xaxis.d2l(point.x);
-//    var py=point.xaxis.d2l(point.y);
-    var x=parseFloat(data.points[0].x.toPrecision(4));
-    var y=parseFloat(data.points[0].y.toPrecision(4));
-    annotate_text = '('+x+','+y+')';
-
-    annotation = {
-      text: annotate_text,
-      x: x,
-      y: y,
-      showarrow: true,
-      ax: 0,
-      ay: -20 
-    };
-
-    var ss = saveSliderPlot;
-    var annotations = ss.layout.annotations || [];
-// only keep the last annotations
-    if(annotations.length > 1 ) {
-      var last_anno=annotations[annotations.length-1];
-      annotations = [];
-      annotations.push(last_anno);
-    }
-    annotations.push(annotation);
-    if(annotations.length == 2) { // reset the trackSliderClicks..
-      var n1=annotations[0].x;
-      var n2=annotations[1].x;
-
-      if(n2 > n1) { 
-        trackSliderClicks = [ n1, n2 ];
-        } else {
-          trackSliderClicks = [ n2, n1 ];
-      }
-      // if in normalized mode, recalculate and redraw
-      if(showNormalize) { // refresh the normalized Y 
-        updateNormalizedLineChart();
-        } else {
-          replaceOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
-      }
-    }
-    Plotly.relayout(ss,{annotations: annotations});
-  });
-*****************************************/
+  savePlot=makeLinePlot(_x,_y,_keys,_colors);
+  saveSliderPlot=makeSliderPlot();
 }
 
 function updateLineChart() {
@@ -246,18 +195,20 @@ function updateLineChart() {
        _keys.push(saveTrace[i]);
      }
   }
-  var _data=getLinesAt(_x, _y,_keys,_colors);
-  var _layout=getLinesDefaultLayout();
-  savePlot=addAPlot('#myViewer',_data, _layout,600,400, {displaylogo: false});
+  savePlot=makeLinePlot(_x, _y,_keys,_colors);
   if(showNormalize) {
     addOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
-    } else { 
-      removeOverlayArea(savePlot);
   }
 }
 
-function initialSliderPlot() {
+function makeLinePlot(x,y,keys,colors) {
+  var _data=getLinesAt(x, y,keys,colors);
+  var _layout=getLinesDefaultLayout();
+  var plot=addAPlot('#myViewer',_data, _layout,600,400, {displaylogo: false});
+  return plot;
+}
 
+function makeSliderPlot() {
   var _data2=getSliderAt(saveX[saveStandard], saveY[saveStandard],saveTrace[saveStandard],'rgb(0,0,0)');
   var _layout2=getSliderDefaultLayout(trackSliderClicks, [saveXmin, saveXmax]);
   var plot=addAPlot('#mySliderViewer',_data2, _layout2,600,400, {displayModeBar: false});
@@ -267,7 +218,7 @@ function initialSliderPlot() {
 function resetSliderPlot() {
   $('#mySliderViewer').empty();
   trackSliderClicks=[saveBaseStart, saveBaseEnd]; 
-  saveSliderPlot=initialSliderPlot();
+  saveSliderPlot=makeSliderPlot();
 }
 
 function makeOne(xval,yval,trace,cval) {
@@ -334,7 +285,7 @@ function getSliderDefaultLayout(subRange, fullRange ){
         margin: { t:50 },
         showlegend: true,
         hovermode: 'closest',
-        xaxis: { title: 'Drag range tabs to focus on a section',
+        xaxis: { title: 'Drag to mark a range',
                  range: subRange,
                  rangeslider: {
                     visible: true,
@@ -399,17 +350,20 @@ function updateNormalizedLineChart() {
   var normDiv= document.getElementById('normalizeDiv');
   var quaY= document.getElementById('qualityY');
   // reprocess normalizedYs
+
   if(showNormalize) { // refresh the normalized Y 
     var cnt=saveY.length;
+    var range=getNormRange(saveY[saveStandard].length, trackSliderClicks);
+    makeMarkersOnSlider(range);
+    
     for(var i=0;i<cnt;i++) {
-      var range=getNormRange(saveY[i].length, trackSliderClicks);
       saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStandard].slice(range[0],range[1]));
       qualityY[i]=calcTrackRatio(saveY[i], range);
-window.console.log("quality at ",i," is ",qualityY[i]);
     }
     normDiv.style.display='';
     quaY.value=qualityY[1]; // XXX set to first one for now
     } else {
+      removeAnnotations(saveSliderPlot);
       normDiv.style.display='none';
   }
   updateLineChart();
@@ -497,6 +451,54 @@ function calcTrackRatio(targetY, range)
   var _y1=_slice[0];
   var _y2=_slice[2];
   return (_y1/_y2);
+}
+
+function makeMarkersOnSlider(nrange) {
+
+  var irange=getIndexMinMax(saveY[saveStandard].slice(nrange[0], nrange[1]));
+  var minIdx=irange[0]+nrange[0];
+  var maxIdx=irange[1]+nrange[0];
+  var _y=saveY[saveStandard];
+  var minY=_y[minIdx];
+  var maxY=_y[maxIdx];
+  var minX=toMinutes(_y,minIdx);
+  var maxX=toMinutes(_y,maxIdx);
+// precision can cause edges effect
+  if(minX < trackSliderClicks[0]) minX=trackSliderClicks[0];
+  if(maxX < trackSliderClicks[0]) maxX=trackSliderClicks[0];
+  if(maxX > trackSliderClicks[1]) maxX=trackSliderClicks[1];
+  if(minX > trackSliderClicks[1]) minX=trackSliderClicks[1];
+  addMarkerAnnotation(minX, minY);
+  addMarkerAnnotation(maxX, maxY);
+}
+
+function addMarkerAnnotation(_x,_y) {
+  var x=Math.round(_x *1000)/1000;
+  var y=Math.round(_y *1000)/1000;
+  var annotate_text = '('+x+','+y+')';
+  var annotation = {
+      text: annotate_text,
+      x: x,
+      y: y,
+      showarrow: true,
+      arrowcolor: 'rgb(255, 0, 0)',
+      ax: 0,
+      ay: -20 
+  };
+
+  var ss = saveSliderPlot;
+  var annotations = ss.layout.annotations || [];
+// reset if there is 2
+  if(annotations.length == 2 ) {
+    annotations = [];
+  }
+  annotations.push(annotation);
+  Plotly.relayout(ss,{annotations: annotations});
+}
+
+function removeAnnotations(aPlot)
+{
+  Plotly.relayout(aPlot,{annotations: []});
 }
 
 /*********************************************/

@@ -45,6 +45,7 @@ function normalizeWithRange(y,minmaxbase) {
   var len=minmaxbase.length;
   var max=Math.max.apply(Math,minmaxbase);
   var min=Math.min.apply(Math,minmaxbase);
+window.console.log("minmax with max ",max," and min ",min);
   var delta=max-min;
   var t;
   for(var i=0;i<cnt;i++) {
@@ -70,7 +71,7 @@ function normalizeWithZero(y,zerobase) {
   var len=zerobase.length;
   var p=processArray(zerobase);
   var colmin=p['mean'];
-  window.console.log("mean is..",mean);
+window.console.log("mean is..",mean);
   var delta=0-colmin;
   var t;
   for(var i=0;i<cnt;i++) {
@@ -90,7 +91,7 @@ function normalizeWithPeak(y,peakbase) {
   var len=peakbase.length;
   var p=processArray(peakbase);
   var colmin=p['mean'];
-  window.console.log("mean is..",mean);
+window.console.log("mean is..",mean);
   var max=Math.max.apply(Math,peakbase);
   var colrage=max-colmin;
   var t;
@@ -100,3 +101,14 @@ function normalizeWithPeak(y,peakbase) {
   }
   return n;
 }
+
+
+/*
+http://stackoverflow.com/questions/11301438/return-index-of-greatest-value-in-an-array
+*/
+function getIndexMinMax(a) {
+  var iOfMax = a.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
+  var iOfMin = a.reduce((iMin, x, i, arr) => x < arr[iMin] ? i : iMin, 0);
+  return [iOfMin, iOfMax];
+}
+
