@@ -10,7 +10,7 @@ from distutils.core import setup
 setup(name='processSEC',
       description='SEC processing scripts',
       version='1.0',
-      scripts=['scripts/processRawSEC.py'],
+      scripts=['scripts/processRawSEC.py','scripts/processRawCDF.py'],
       license='Apache License, Version 2.0',
       classifiers=[
         'Intended Audience :: Developers',
