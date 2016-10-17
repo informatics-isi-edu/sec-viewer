@@ -37,12 +37,12 @@ function toggleNormalize() {
   var nBtn = document.getElementById('normalizeBtn');
   var bBtn = document.getElementById('baseBtn');
   if(showNormalize) {
-    bBtn.disabled=true;
+    if(bBtn) bBtn.disabled=true;
     document.getElementById('resetBtn').disabled=false;
     document.getElementById('againBtn').disabled=false;
     nBtn.style.color='red';
     } else {
-      bBtn.disabled=false;
+      if(bBtn) bBtn.disabled=false;
       nBtn.style.color='white';
   }
   updateNormalizedLineChart();
