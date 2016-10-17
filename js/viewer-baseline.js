@@ -26,7 +26,21 @@ baseline.push(base);
 
 }
 
-function normalizeWithBase(y, ybase) {
+function normalizeWithBaseMin(y, minmaxbase) {
+  var n=[];
+  var cnt=y.length;
+  var t;
+  var ymin=Math.min.apply(Math,minmaxbase);
+window.console.log("normalizeWithBaseMin, shift by y..",ymin);
+  for(var i=0;i<cnt;i++) {
+    t=(y[i]-ymin);
+    n.push(t)
+  }
+  return n;
+}
+
+// this is shifting with another signal
+function normalizeWithBaseline(y, ybase) {
   var n=[];
   var cnt=y.length;
   var t;
@@ -45,7 +59,7 @@ function normalizeWithRange(y,minmaxbase) {
   var len=minmaxbase.length;
   var max=Math.max.apply(Math,minmaxbase);
   var min=Math.min.apply(Math,minmaxbase);
-window.console.log("minmax with max ",max," and min ",min);
+//window.console.log("minmax with max ",max," and min ",min);
   var delta=max-min;
   var t;
   for(var i=0;i<cnt;i++) {

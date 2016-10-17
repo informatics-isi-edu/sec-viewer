@@ -16,6 +16,8 @@
 // for the example, the default region segment is from minute-5 to minute-9
 //                  base is signal03 and standardline is signal01  
 //                  default is 0 for standard and also for base unless specified
+//      if there is a supplied baseline, then smoothing is by the line
+//         or else smoothing is by the min of each trace within the 'region'
 //                 
 
 
@@ -61,12 +63,6 @@ function toggleBase() {
       bBtn.style.color='white';
   }
   updateWithBaseLineChart();
-}
-
-function enableBaseBtn()
-{
-  var bBtn = document.getElementById('baseBtn');
-  bBtn.display='';
 }
 
 function minmaxAgain() {
@@ -118,8 +114,6 @@ function processArgs(args) {
              var t=parseInt(kvp[1]);
              if(!isNaN(t))
                saveBase=(t==-1)?t:t-1;
-               if(saveBase > 0)
-                 enableBaseBtn();
              break;
              }
           case 'standard':

@@ -212,7 +212,7 @@ function updateLineChart() {
      }
   }
   savePlot=makeLinePlot(_x, _y,_keys,_colors);
-  if(showNormalize) {
+  if(showNormalize || smoothBase) {
     addOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
   }
 }
@@ -387,21 +387,27 @@ function updateNormalizedLineChart() {
   updateLineChart();
 }
 
-
-
+// if saveBase is set, then smooth by the supplied trace
+//    else smooth by the min-of-range of the trace
 function updateWithBaseLineChart() {
-  // calculate the smoothed one if not there.
-  if(!smoothedY) { 
+  trackSliderClicks=getSliderState();
+  if(smoothBase) {
     var cnt=saveY.length;
+    var range=getNormRange(saveY[saveStandard].length, trackSliderClicks);
+    makeMarkersOnSlider(range);
     for(var i=0;i<cnt;i++) {
+      var s=saveY[i];
       if(i != saveStandard ) {
-        var s=normalizeWithBase(saveY[i], saveY[saveBase]);
-        saveYsmooth[i]=s;
-        } else {
-          saveYsmooth[i]=saveY[i];
+        if(hasBase()) { 
+          s=normalizeWithBaseline(saveY[i], saveY[saveBase]);
+          } else {
+            s=normalizeWithBaseMin(saveY[i], saveY[i].slice(range[0],range[1]));
+        }
       }
+      saveYsmooth[i]=s;
     }
-    smoothedY=true;
+    } else {
+      removeAnnotations(saveSliderPlot);
   }
   updateLineChart();
 }
