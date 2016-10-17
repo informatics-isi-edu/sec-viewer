@@ -7,13 +7,13 @@ var saveSliderPlot=null;  // point to the viewer node
 
 var saveY=[];       // Ys values
 var smoothedY=false;
-var saveYsmooth=[];   // smoothed Ys value to experiment baseline signal, calculated 
+var saveYsmooth=[];   // smoothed Ys value to experiment base signal, calculated 
                         // once only
 var saveX=[];       // X value, base on actual_sampling_interval
                     // in seconds
 var saveYnorm=[];   // Ys normalized values, default, with full y range, recalculated
                     // with each normalizeButton toggling
-var qualityY=[];    // normalized quality of Y, calculated from the baseline pts
+var qualityY=[];    // normalized quality of Y, calculated from the region pts
 
 var saveTrace=[];   // key/label for the traces
 var saveTracking=[];// state of traces being shown (true/false)
@@ -21,15 +21,15 @@ var saveColor=[];
 
 // in a list of urls being passed, it is always assumed that the
 // first url is the 'standard' signal per device per site
-// 2nd url is the 'baseline' of the experiment 
+// 2nd url is the 'base/noise' of the experiment 
 // rest of them are the different signal data
 // but these could be changed using  base and standard commandline options
 // to change
-var saveBase= 1;
-var saveStandard=0;     // the trace (index in saveTracking) to be
+var saveBase= -1;
+var saveStandard=0;    // the trace (index in saveTracking) to be
                         // shown on the rangeslider-default is 0
-var trackSliderClicks=[]; // default baseline range (in minutes)
-                          // saveBaseStart, saveBaseEnd set from commandline
+var trackSliderClicks=[]; // default region range (in minutes)
+                          // saveRegionStart, saveBaseEnd set from commandline
 var trackRatio=null;
 
 var saveYmax=null;
@@ -136,18 +136,18 @@ function processForPlotting(blob) {
            saveXmin=(min>saveXmin)?saveXmin:min;
 
    }
-   // if either of saveBaseStart or saveBaseEnd is -1, then
+   // if either of saveRegionStart or saveRegionEnd is -1, then
    // initialize them to the full range of x axis
-   if(saveBaseStart == -1 || saveBaseEnd == -1) {
-     saveBaseStart=saveXmin;
-     saveBaseEnd=saveXmax;
+   if(saveRegionStart == -1 || saveRegionEnd == -1) {
+     saveRegionStart=saveXmin;
+     saveRegionEnd=saveXmax;
    }
-   if(saveBaseStart > saveBaseEnd) {
-     var t=saveBaseStart;
-     saveBaseStart=saveBaseEnd;
-     saveBaseEnd=t;
+   if(saveRegionStart > saveRegionEnd) {
+     var t=saveRegionStart;
+     saveRegionStart=saveRegionEnd;
+     saveRegionEnd=t;
    }
-   trackSliderClicks=[saveBaseStart, saveBaseEnd ];
+   trackSliderClicks=[saveRegionStart, saveRegionEnd ];
 }
 
 // XXX something to look into, all traces are now assume
@@ -162,6 +162,20 @@ function getNormRange(count, baseClicks) {
 
 }
 
+function hasStandard() 
+{
+   if(saveStandard == -1)
+     return false;
+   return true;
+}
+
+function hasBase() 
+{
+   if(saveBase == -1)
+     return false;
+   return true;
+}
+
 // initial set
 function addLineChart() {
   // returns, Y-array, array-length, array-names
@@ -171,7 +185,8 @@ function addLineChart() {
   var _colors=saveColor;
 
   savePlot=makeLinePlot(_x,_y,_keys,_colors);
-  saveSliderPlot=makeSliderPlot();
+  if(hasStandard())
+    saveSliderPlot=makeSliderPlot();
 }
 
 function updateLineChart() {
@@ -185,7 +200,7 @@ function updateLineChart() {
   var targetY=saveY;
   if(showNormalize)
     targetY=saveYnorm;
-  if(smoothBaseline)
+  if(smoothBase)
     targetY=saveYsmooth;
 
   for(var i=0;i<cnt;i++) {
@@ -218,7 +233,7 @@ function makeSliderPlot() {
 
 function resetSliderPlot() {
   $('#mySliderViewer').empty();
-  trackSliderClicks=[saveBaseStart, saveBaseEnd]; 
+  trackSliderClicks=[saveRegionStart, saveRegionEnd]; 
   saveSliderPlot=makeSliderPlot();
 }
 
@@ -316,6 +331,7 @@ function getLinesDefaultLayout(){
         height: 300,
         margin: { t:50, b:40 },
         showlegend: true,
+//        legend: { traceorder: 'reversed'},
         hovermode: 'closest',
         xaxis: { title: 'Time(minutes)'},
         yaxis: tmp,
@@ -349,7 +365,7 @@ function getAPlot(divname) {
 function updateNormalizedLineChart() { 
   trackSliderClicks=getSliderState();
   var normDiv= document.getElementById('normalizeDiv');
-  var quaY= document.getElementById('qualityY');
+//  var quaY= document.getElementById('qualityY');
   // reprocess normalizedYs
 
   if(showNormalize) { // refresh the normalized Y 
@@ -358,11 +374,12 @@ function updateNormalizedLineChart() {
     makeMarkersOnSlider(range);
     
     for(var i=0;i<cnt;i++) {
-      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStandard].slice(range[0],range[1]));
-      qualityY[i]=calcTrackRatio(saveY[i], range);
+      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[i].slice(range[0],range[1]));
+//      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStandard].slice(range[0],range[1]));
+//      qualityY[i]=calcTrackRatio(saveY[i], range);
     }
     normDiv.style.display='';
-    quaY.value=qualityY[1]; // XXX set to first one for now
+//    quaY.value=qualityY[1]; // XXX set to first one for now
     } else {
       removeAnnotations(saveSliderPlot);
       normDiv.style.display='none';
@@ -372,18 +389,19 @@ function updateNormalizedLineChart() {
 
 
 
-function updateWithBaselineLineChart() {
+function updateWithBaseLineChart() {
   // calculate the smoothed one if not there.
   if(!smoothedY) { 
     var cnt=saveY.length;
     for(var i=0;i<cnt;i++) {
       if(i != saveStandard ) {
-        var s=normalizeWithBaseline(saveY[i], saveY[saveBase]);
+        var s=normalizeWithBase(saveY[i], saveY[saveBase]);
         saveYsmooth[i]=s;
         } else {
           saveYsmooth[i]=saveY[i];
       }
     }
+    smoothedY=true;
   }
   updateLineChart();
 }

@@ -26,7 +26,7 @@ baseline.push(base);
 
 }
 
-function normalizeWithBaseline(y, ybase) {
+function normalizeWithBase(y, ybase) {
   var n=[];
   var cnt=y.length;
   var t;

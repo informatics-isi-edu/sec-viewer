@@ -9,14 +9,13 @@
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL01.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL02.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL03.json&
-//     baseStart=5&baseEnd=9&base=3&standard=1
+//     regionStart=5&regionEnd=9&base=3&standard=1
 //
-// basestart, baseend is in in minutes
-// baseline, standard is i_th url in the list (n-1)
-// for the example, the default base segment is from minute-5 to minute-9
-//                  baseline is signal03 and standardline is signal01  
-//                  default is 0 is standardline, and 1 is baseline but if
-//                  assigned with -1, then that means it is missing in the set
+// regionStart, regionEnd are in minutes
+// base, standard is i_th url in the list (n-1)
+// for the example, the default region segment is from minute-5 to minute-9
+//                  base is signal03 and standardline is signal01  
+//                  default is 0 for standard and also for base unless specified
 //                 
 
 
@@ -24,19 +23,19 @@
 var SINGLE_BLOB=true;
 var saveBigBlob=null;
 var showNormalize=false;
-var smoothBaseline=false;
+var smoothBase=false; // reduce the noise
 var saveBlob=null;
 var saveFirst=false;
 var saveURLs=[];
-var saveBaseStart=-1;
-var saveBaseEnd=-1;
+var saveRegionStart=-1;
+var saveRegionEnd=-1;
 
 
 // this is minmax normalization
 function toggleNormalize() {
   showNormalize = ! showNormalize;
   var nBtn = document.getElementById('normalizeBtn');
-  var bBtn = document.getElementById('baselineBtn');
+  var bBtn = document.getElementById('baseBtn');
   if(showNormalize) {
     bBtn.disabled=true;
     document.getElementById('resetBtn').disabled=false;
@@ -49,19 +48,25 @@ function toggleNormalize() {
   updateNormalizedLineChart();
 }
 
-// normalize to the baseline signal
-function toggleBaseline() {
-  smoothBaseline = ! smoothBaseline;
-  var bBtn = document.getElementById('baselineBtn');
+// normalize to the base signal
+function toggleBase() {
+  smoothBase = ! smoothBase;
+  var bBtn = document.getElementById('baseBtn');
   var nBtn = document.getElementById('normalizeBtn');
-  if(smoothBaseline) {
+  if(smoothBase) {
       nBtn.disabled=true;
       bBtn.style.color='red';
     } else {
       nBtn.disabled=false;
       bBtn.style.color='white';
   }
-  updateWithBaselineLineChart();
+  updateWithBaseLineChart();
+}
+
+function enableBaseBtn()
+{
+  var bBtn = document.getElementById('baseBtn');
+  bBtn.display='';
 }
 
 function minmaxAgain() {
@@ -94,18 +99,18 @@ function processArgs(args) {
              rc++;
              break;
              }
-          case 'baseStart':
+          case 'regionStart':
              {
              var t=parseInt(kvp[1]);
              if(!isNaN(t))
-               saveBaseStart=t;
+               saveRegionStart=t;
              break;
              }
-          case 'baseEnd':
+          case 'regionEnd':
              {
              var t=parseInt(kvp[1]);
              if(!isNaN(t))
-               saveBaseEnd=t;
+               saveRegionEnd=t;
              break;
              }
           case 'base':
@@ -113,6 +118,8 @@ function processArgs(args) {
              var t=parseInt(kvp[1]);
              if(!isNaN(t))
                saveBase=(t==-1)?t:t-1;
+               if(saveBase > 0)
+                 enableBaseBtn();
              break;
              }
           case 'standard':
