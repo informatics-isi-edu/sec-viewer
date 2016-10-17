@@ -397,12 +397,10 @@ function updateWithBaseLineChart() {
     makeMarkersOnSlider(range);
     for(var i=0;i<cnt;i++) {
       var s=saveY[i];
-      if(i != saveStandard ) {
-        if(hasBase()) { 
-          s=normalizeWithBaseline(saveY[i], saveY[saveBase]);
-          } else {
-            s=normalizeWithBaseMin(saveY[i], saveY[i].slice(range[0],range[1]));
-        }
+      if(hasBase()) { 
+        s=normalizeWithBaseline(saveY[i], saveY[saveBase]);
+        } else {
+          s=normalizeWithBaseMin(saveY[i], saveY[i].slice(range[0],range[1]));
       }
       saveYsmooth[i]=s;
     }
