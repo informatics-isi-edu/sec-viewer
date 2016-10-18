@@ -14,6 +14,7 @@ var saveX=[];       // X value, base on actual_sampling_interval
 var saveYnorm=[];   // Ys normalized values, default, with full y range, recalculated
                     // with each normalizeButton toggling
 var qualityY=[];    // normalized quality of Y, calculated from the region pts
+var qualityFirst=true; // for now, just calculate once for the full range
 
 var saveTrace=[];   // key/label for the traces
 var saveTracking=[];// state of traces being shown (true/false)
@@ -282,15 +283,12 @@ function getLinesAt(x,y,trace,color) {
   var hold_base=null;
   var one;
   for (var i=0;i<cnt; i++) {
-    one= makeOne(x[i],y[i],trace[i],color[i]);
-/* suppress the display of on-demand calculation of qualityY
     if(showNormalize) { // include qualityY value on the hover 
        var text="Quality Ratio: "+qualityY[i];
        one= makeOneWithText(x[i],y[i],trace[i],color[i],text);
        } else {
          one= makeOne(x[i],y[i],trace[i],color[i]);
     }
-*/
     if(i != saveStandard && i != saveBase) {
       data.push(one);
       } else {
@@ -388,7 +386,6 @@ function getAPlot(divname) {
 function updateNormalizedLineChart() { 
   trackSliderClicks=getSliderState();
   var normDiv= document.getElementById('normalizeDiv');
-//  var quaY= document.getElementById('qualityY');
   // reprocess normalizedYs
 
   if(showNormalize) { // refresh the normalized Y 
@@ -396,21 +393,25 @@ function updateNormalizedLineChart() {
     var range=getNormRange(saveY[saveStandard].length, trackSliderClicks);
     makeMarkersOnSlider(range);
     
-    var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
+// make it full range as default case..
+//    var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
+    var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], [0, cnt]);
 //window.console.log("ratio's idx is ..", ratioIdx[0], " and ", ratioIdx[1]);
 //window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
 //" and ", toMinutes(saveY[saveStandard], ratioIdx[1]));
     for(var i=0;i<cnt;i++) {
       saveYnorm[i]=normalizeWithRange(saveY[i], saveY[i].slice(range[0],range[1]));
 //      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStandard].slice(range[0],range[1]));
-        var _y=saveY[i];
-        var Y1=_y[ratioIdx[0]]
-        var Y2=_y[ratioIdx[1]];
-        qualityY[i]=Math.round((Y2/Y1)*1000)/1000;
+        if(qualityFirst) {
+          var _y=saveY[i];
+          var Y1=_y[ratioIdx[0]]
+          var Y2=_y[ratioIdx[1]];
+          qualityY[i]=Math.round((Y2/Y1)*1000)/1000;
 //window.console.log("qualitY for ",i, " is ", qualityY[i]);
+        }
     }
+    qualityFirst=false;
     normDiv.style.display='';
-//    quaY.value=qualityY[1]; // XXX set to first one for now
     } else {
       removeAnnotations(saveSliderPlot);
       normDiv.style.display='none';
