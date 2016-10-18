@@ -250,6 +250,19 @@ function makeOne(xval,yval,trace,cval) {
   return t;
 }
 
+function makeOneWithText(xval,yval,trace,cval,tval) {
+  var marker_val = { size:10, color:cval};
+  var t= { x:xval,
+           y:yval,
+           name:trimKey(trace),
+           marker: marker_val,
+           line : { width: 3},
+           text: tval,
+           hoverinfo: 'x+y+text',
+           type:"scatter" };
+  return t;
+}
+
 function makeSliderOne(xval,yval,trace,cval) {
   var marker_val = { size:10, color:cval};
   var t= { x:xval,
@@ -267,8 +280,14 @@ function getLinesAt(x,y,trace,color) {
   var data=[];
   var hold_star=null;
   var hold_base=null;
+  var one;
   for (var i=0;i<cnt; i++) {
-    var one= makeOne(x[i],y[i],trace[i],color[i]); 
+    if(showNormalize) { // include qualityY value on the hover 
+       var text="Quality Ratio: "+qualityY[i];
+       one= makeOneWithText(x[i],y[i],trace[i],color[i],text);
+       } else {
+         one= makeOne(x[i],y[i],trace[i],color[i]);
+    }
     if(i != saveStandard && i != saveBase) {
       data.push(one);
       } else {
@@ -384,7 +403,7 @@ window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
         var _y=saveY[i];
         var Y1=_y[ratioIdx[0]]
         var Y2=_y[ratioIdx[1]];
-        qualityY[i]=Y2/Y1;
+        qualityY[i]=Math.round((Y2/Y1)*1000)/1000;
         window.console.log("qualitY for ",i, " is ", qualityY[i]);
     }
     normDiv.style.display='';
