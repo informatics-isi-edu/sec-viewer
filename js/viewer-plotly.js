@@ -282,12 +282,15 @@ function getLinesAt(x,y,trace,color) {
   var hold_base=null;
   var one;
   for (var i=0;i<cnt; i++) {
+    one= makeOne(x[i],y[i],trace[i],color[i]);
+/* suppress the display of on-demand calculation of qualityY
     if(showNormalize) { // include qualityY value on the hover 
        var text="Quality Ratio: "+qualityY[i];
        one= makeOneWithText(x[i],y[i],trace[i],color[i],text);
        } else {
          one= makeOne(x[i],y[i],trace[i],color[i]);
     }
+*/
     if(i != saveStandard && i != saveBase) {
       data.push(one);
       } else {
