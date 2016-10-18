@@ -11,23 +11,36 @@
 ##   extract baseline information and store as a separate 
 ##                                             file_base.json file
 ##
-## usage: ./processRAWCDF.py standard.cdf dataDir outDir
+## usage: ./processRAWCDF.py dataDir outDir standard(s)
 ##
-##     will produce outdir/dataSet1.json
-##                  ...
-##     will produce outdir/dataSetN.json
+##     will produce outdir/datafile.json
+##                   outdir/datafile.csv
+##                   outdir/datafile_meta.json
+##                   outdir/datafile_base.json
 ##
 ## The data directory should be setup with cdf file with complete name like
 ##    IMPT6749_NTX_E2-3_012216-SIGNAL01.cdf
+## to avoid name collision
 ##
-##./processRAWCDF.py standard.cdf GPCR/EXP1 resultLoc
-##./processRAWCDF.py standard.cdf GPCR/EXP1/GPCRUSC20161012EXP2_3_SIGNAL03.cdf resultLoc
+## examples
+##  processRAWCDF.py GPCR/EXP1 resultLoc standard.cdf(s)
+##  processRAWCDF.py GPCR/EXP1/GPCRUSC20161012EXP2_3_SIGNAL03.cdf resultLoc standard.cdf(s)
 ##
-## the format of csv files are like these..
+## an actual example,
+#env PYTHONPATH=/Library/Python/2.7/site-packages ./processRAWCDF.py 
+#GPCR/GPCRUSC20161012EXP2/GPCRUSC20161012SAM3/GPCRUSC20161012EXP2_1_SIGNAL01.cdf
+#resultCDF2 
+#GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM1/GPCRUSC20161012EXP1_1_SIGNAL01.cdf
+#GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM2/GPCRUSC20161012EXP1_2_SIGNAL01.cdf
+#
+## the result is..
+##GPCRUSC20161012EXP2_1_SIGNAL01.csv
 #standrdFile,standardQRatio,maxIdx,fcsQRatio,offsetIdx
 #GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM1/GPCRUSC20161012EXP1_1_SIGNAL01.cdf,
 #0.34429701072792135,1187,0.5341640341640341,1112
-##
+#GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM2/GPCRUSC20161012EXP1_2_SIGNAL01.cdf,
+#0.13526209031707057,1166,0.350049426914959,1091
+#
 ## ** remember to install netCDF4, python package
 ##
 
@@ -77,27 +90,30 @@ def list2dictionary(list):
 
 ## extract the idx for the max peak in standard and also
 ## 0.5 minutes ahead of it
-def process_for_standard(standard) :
-    if not standard.endswith('.cdf'):
-      exit(1)
-    tlist,vlist,mlist,slist=process_for_file("",standard)
+def process_for_standard(slist) :
+    rlist=[]
+    for standard in slist :
+      if not standard.endswith('.cdf'):
+        exit(1)
+      tlist,vlist,mlist,slist=process_for_file("",standard)
 
-    max_v=max(vlist)
-    max_idx=vlist.index(max_v)
-    print("standard max data",max_v)
-    print("standard max idx",max_idx)
-    hit_v=tlist[max_idx]-0.5;
-    hit_idx=max_idx
-    for i in range(max_idx, 0, -1) :
-      if(tlist[i] < hit_v):
-         hit_idx=i
-         break
-    hit_v=vlist[hit_idx]
-    qRatio=hit_v/max_v
-    print("standard hit data",hit_v) 
-    print("standard hit idx", hit_idx)
-    print("standard Quality ratio",qRatio) 
-    rlist={ 'maxIdx': max_idx, 'offsetIdx':hit_idx, 'standardQRatio':qRatio, 'standrdFile':standard } 
+      max_v=max(vlist)
+      max_idx=vlist.index(max_v)
+      print("standard max data",max_v)
+      print("standard max idx",max_idx)
+      hit_v=tlist[max_idx]-0.5;
+      hit_idx=max_idx
+      for i in range(max_idx, 0, -1) :
+        if(tlist[i] < hit_v):
+           hit_idx=i
+           break
+      hit_v=vlist[hit_idx]
+      qRatio=hit_v/max_v
+      print("standard hit data",hit_v) 
+      print("standard hit idx", hit_idx)
+      print("standard Quality ratio",qRatio) 
+      item={ 'maxIdx': max_idx, 'offsetIdx':hit_idx, 'standardQRatio':qRatio, 'standrdFile':standard } 
+      rlist.append(item)
     return rlist
 
 ## every json needs to have a time series data
@@ -139,15 +155,19 @@ def process_for_data(target,dataloc,qlist) :
             blist[key]=slist
             s.write(json.dumps(blist))
             s.close()
-            m=qlist['maxIdx']
-            h=qlist['offsetIdx']
-            fRatio = vlist[h]/vlist[m]
-            print("file Quality ratio",fRatio) 
-            qlist['fcsQRatio']=fRatio
+            qqlist=[]
+            for item in qlist :
+              m=item['maxIdx']
+              h=item['offsetIdx']
+              fRatio = vlist[h]/vlist[m]
+              item['fcsQRatio']=fRatio
+              qqlist.append(item)
+            fitem=qqlist[0]
             with open(fullpath+'.csv', 'w') as f:
-               w = csv.DictWriter(f, qlist.keys())
-               w.writeheader()
-               w.writerow(qlist)
+              w = csv.DictWriter(f, fitem.keys())
+              w.writeheader()
+              for item in qqlist :
+                w.writerow(item)
         else:
             continue
     exit(0)
@@ -303,20 +323,24 @@ def process_for_file(dir,file):
 
 ################ MAIN #################################
 
-if(len(sys.argv) != 4) :
-  print "Usage: processRawSEC.py standard.cdf [dataDir|datafile] outDir"
+if(len(sys.argv) < 4) :
+  print "Usage: processRawSEC.py [dataDir|datafile] outDir standard(s)"
   exit(1)
 
 standard=sys.argv[1]
-dataloc=sys.argv[2]
-outdir=sys.argv[3]
+dataloc=sys.argv[1]
+outdir=sys.argv[2]
 
-if not os.path.exists(dataloc) and not os.path.isfile(standard):
+standardlist=[]
+for i in range(3,len(sys.argv)) :
+   standardlist.append(sys.argv[i])
+
+if not os.path.exists(dataloc):
   exit(1)
 
 if not os.path.exists(outdir):
   os.mkdir(outdir)
 
-slist=process_for_standard(standard)
+slist=process_for_standard(standardlist)
 process_for_data(outdir,dataloc,slist)
 
