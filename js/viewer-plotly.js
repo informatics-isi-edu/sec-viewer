@@ -81,6 +81,7 @@ function toIndex(cnt,mins)
    var idx=Math.round(tmp);
    return idx;
 }
+
 function toMinutes(y,idx)
 {
     var cnt=y.length;
@@ -373,10 +374,18 @@ function updateNormalizedLineChart() {
     var range=getNormRange(saveY[saveStandard].length, trackSliderClicks);
     makeMarkersOnSlider(range);
     
+    var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
+//window.console.log("ratio's idx is ..", ratioIdx[0], " and ", ratioIdx[1]);
+//window.console.log("time range is ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
+//                   " and ", toMinutes(saveY[saveStandard], ratioIdx[1]));
     for(var i=0;i<cnt;i++) {
       saveYnorm[i]=normalizeWithRange(saveY[i], saveY[i].slice(range[0],range[1]));
 //      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStandard].slice(range[0],range[1]));
-//      qualityY[i]=calcTrackRatio(saveY[i], range);
+        var _y=saveY[i];
+        var Y1=_y[ratioIdx[0]]
+        var Y2=_y[ratioIdx[1]];
+        qualityY[i]=Y1/Y2;
+//        window.console.log("qualitY for ",i, " is ", qualityY[i]);
     }
     normDiv.style.display='';
 //    quaY.value=qualityY[1]; // XXX set to first one for now
@@ -466,14 +475,16 @@ function removeOverlayArea(aPlot)
   Plotly.relayout(aPlot,update);
 }
 
-
-function calcTrackRatio(targetY, range)
-{
-  var _slice=targetY.slice(range[0],range[1]);
-  var _sz=_slice.length;
-  var _y1=_slice[0];
-  var _y2=_slice[2];
-  return (_y1/_y2);
+//Y1 = measured at x(on trace) where standard Y is maximum
+//Y2 = measured at y1) - 0.5 min  
+function calcTrackRatioIdx(targetY, nrange) {
+  var cnt=targetY.length;
+  var delta=toIndex(cnt, 0.5);
+  var irange=getIndexMinMax(saveY[saveStandard].slice(nrange[0], nrange[1]));
+  var maxIdx=irange[1]+nrange[0];
+  var nextIdx=maxIdx - delta;
+  if(nextIdx < 0) nextIdx=0;
+  return [maxIdx, nextIdx];
 }
 
 function makeMarkersOnSlider(nrange) {
