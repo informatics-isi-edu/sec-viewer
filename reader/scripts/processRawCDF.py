@@ -2,6 +2,8 @@
 ##
 ##
 ## Given a path to original SEC cdf data directory,
+##   Process the standard.cdf and look for the index to be used
+##   for calculating the quality ratio
 ##   Iterate through data directory looking for exp_singnalID.cdf
 ##   extract the ordinate_values within and generate a single JSON file
 ##   per signal channel for visualization purpose
@@ -9,7 +11,7 @@
 ##   extract baseline information and store as a separate 
 ##                                             file_base.json file
 ##
-## usage: ./processRAWCDF.py dataDir outDir
+## usage: ./processRAWCDF.py standard.cdf dataDir outDir
 ##
 ##     will produce outdir/dataSet1.json
 ##                  ...
@@ -18,16 +20,22 @@
 ## The data directory should be setup with cdf file with complete name like
 ##    IMPT6749_NTX_E2-3_012216-SIGNAL01.cdf
 ##
-##./processRAWCDF.py GPCR/EXP1 resultLoc
-##./processRAWCDF.py GPCR/EXP1/GPCRUSC20161012EXP2_3_SIGNAL03.cdf resultLoc
+##./processRAWCDF.py standard.cdf GPCR/EXP1 resultLoc
+##./processRAWCDF.py standard.cdf GPCR/EXP1/GPCRUSC20161012EXP2_3_SIGNAL03.cdf resultLoc
+##
+## the format of csv files are like these..
+#standrdFile,standardQRatio,maxIdx,fcsQRatio,offsetIdx
+#GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM1/GPCRUSC20161012EXP1_1_SIGNAL01.cdf,
+#0.34429701072792135,1187,0.5341640341640341,1112
 ##
 ## ** remember to install netCDF4, python package
-
+##
 
 import os
 import sys
 import pdb
 import numpy as np
+import csv
 
 ## blocking it before being called
 import matplotlib 
@@ -67,8 +75,33 @@ def list2dictionary(list):
     blist = {i: list[i] for i in range(0, len(list))}
     return blist
 
+## extract the idx for the max peak in standard and also
+## 0.5 minutes ahead of it
+def process_for_standard(standard) :
+    if not standard.endswith('.cdf'):
+      exit(1)
+    tlist,vlist,mlist,slist=process_for_file("",standard)
+
+    max_v=max(vlist)
+    max_idx=vlist.index(max_v)
+    print("standard max data",max_v)
+    print("standard max idx",max_idx)
+    hit_v=tlist[max_idx]-0.5;
+    hit_idx=max_idx
+    for i in range(max_idx, 0, -1) :
+      if(tlist[i] < hit_v):
+         hit_idx=i
+         break
+    hit_v=vlist[hit_idx]
+    qRatio=hit_v/max_v
+    print("standard hit data",hit_v) 
+    print("standard hit idx", hit_idx)
+    print("standard Quality ratio",qRatio) 
+    rlist={ 'maxIdx': max_idx, 'offsetIdx':hit_idx, 'standardQRatio':qRatio, 'standrdFile':standard } 
+    return rlist
+
 ## every json needs to have a time series data
-def process_for_data(target,dataloc) :
+def process_for_data(target,dataloc,qlist) :
     if os.path.isfile(dataloc) :
       dir = ""
       onlyfiles = [dataloc]
@@ -106,6 +139,15 @@ def process_for_data(target,dataloc) :
             blist[key]=slist
             s.write(json.dumps(blist))
             s.close()
+            m=qlist['maxIdx']
+            h=qlist['offsetIdx']
+            fRatio = vlist[h]/vlist[m]
+            print("file Quality ratio",fRatio) 
+            qlist['fcsQRatio']=fRatio
+            with open(fullpath+'.csv', 'w') as f:
+               w = csv.DictWriter(f, qlist.keys())
+               w.writeheader()
+               w.writerow(qlist)
         else:
             continue
     exit(0)
@@ -261,21 +303,20 @@ def process_for_file(dir,file):
 
 ################ MAIN #################################
 
-if(len(sys.argv) < 3) :
-  print "Usage: processRawSEC.py [dataDir|datafile] outDir"
+if(len(sys.argv) != 4) :
+  print "Usage: processRawSEC.py standard.cdf [dataDir|datafile] outDir"
   exit(1)
 
-dataloc=sys.argv[1]
-outdir=sys.argv[2]
+standard=sys.argv[1]
+dataloc=sys.argv[2]
+outdir=sys.argv[3]
 
-ff=os.path.islink(dataloc)
-fff=os.path.isfile(dataloc)
-
-if not os.path.exists(dataloc) and not os.path.isfile(dataloc):
+if not os.path.exists(dataloc) and not os.path.isfile(standard):
   exit(1)
 
 if not os.path.exists(outdir):
   os.mkdir(outdir)
 
-process_for_data(outdir,dataloc)
+slist=process_for_standard(standard)
+process_for_data(outdir,dataloc,slist)
 
