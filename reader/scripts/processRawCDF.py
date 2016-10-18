@@ -69,7 +69,6 @@ def list2dictionary(list):
 
 ## every json needs to have a time series data
 def process_for_data(target,dataloc) :
-
     if os.path.isfile(dataloc) :
       dir = ""
       onlyfiles = [dataloc]
@@ -262,7 +261,7 @@ def process_for_file(dir,file):
 
 if(len(sys.argv) < 3) :
   print "Usage: processRawSEC.py [dataDir|datafile] outDir"
-  exit()
+  exit(1)
 
 dataloc=sys.argv[1]
 outdir=sys.argv[2]
@@ -271,7 +270,7 @@ ff=os.path.islink(dataloc)
 fff=os.path.isfile(dataloc)
 
 if not os.path.exists(dataloc) and not os.path.isfile(dataloc):
-  exit()
+  exit(1)
 
 if not os.path.exists(outdir):
   os.mkdir(outdir)

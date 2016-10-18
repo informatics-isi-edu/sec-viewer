@@ -375,17 +375,17 @@ function updateNormalizedLineChart() {
     makeMarkersOnSlider(range);
     
     var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
-//window.console.log("ratio's idx is ..", ratioIdx[0], " and ", ratioIdx[1]);
-//window.console.log("time range is ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
-//                   " and ", toMinutes(saveY[saveStandard], ratioIdx[1]));
+window.console.log("ratio's idx is ..", ratioIdx[0], " and ", ratioIdx[1]);
+window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
+                   " and ", toMinutes(saveY[saveStandard], ratioIdx[1]));
     for(var i=0;i<cnt;i++) {
       saveYnorm[i]=normalizeWithRange(saveY[i], saveY[i].slice(range[0],range[1]));
 //      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStandard].slice(range[0],range[1]));
         var _y=saveY[i];
         var Y1=_y[ratioIdx[0]]
         var Y2=_y[ratioIdx[1]];
-        qualityY[i]=Y1/Y2;
-//        window.console.log("qualitY for ",i, " is ", qualityY[i]);
+        qualityY[i]=Y2/Y1;
+        window.console.log("qualitY for ",i, " is ", qualityY[i]);
     }
     normDiv.style.display='';
 //    quaY.value=qualityY[1]; // XXX set to first one for now
