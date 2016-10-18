@@ -255,13 +255,13 @@ def process_for_file(dir,file):
 ################ MAIN #################################
 if(len(sys.argv) < 3) :
   print "Usage: processRawSEC.py dataDir outDir"
-  exit()
+  exit(1)
 
 datadir=sys.argv[1]
 outdir=sys.argv[2]
 
 if not os.path.exists(datadir):
-  exit()
+  exit(1)
 
 if not os.path.exists(outdir):
   os.mkdir(outdir)
@@ -281,4 +281,4 @@ else:
           process_for_directory(target,os.path.join(datadir,dir))
       else:
           continue
-
+  exit(0)

@@ -108,6 +108,8 @@ def process_for_data(target,dataloc) :
             s.close()
         else:
             continue
+    exit(0)
+
 
 ## generate a range of 'cnt' items in minutes
 def generate_x_array(type,interval,cnt): 
