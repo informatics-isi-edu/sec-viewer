@@ -35,12 +35,7 @@
 <style>
 </style>
 </head>
-<body style='width:1000px; border:2px solid blue;'>
-<div id="testBlock" style='width:100%;border:1px solid red;height:40px; display:none;'>
-   <button id="sec-save-button" title="save,sec_list.json" class="btn btn-default sec-control-btn" onclick='saveSEC("sec_list.json")'><a id="saveSEC-toggle" class="glyphicon glyphicon-hand-up" style="position:absolute; margin-top:8px; margin-left:-12px;font-size:20px;color:red;"></a></button>
-   <button id="sec-load-button" title="load,sec_list.json" class="btn btn-default sec-control-btn" onclick='loadSEC("sec_list.json")'><a id="loadSEC-toggle" class="glyphicon glyphicon-hand-down" style="position:absolute; margin-top:8px; margin-left:-10px;font-size:20px;color:green;"></a></button>
-   <button id="sec-dummy-button" title="dummy" class="btn btn-default sec-control-btn" onclick='dummyClick()'><a id="dummy-toggle" class="glyphicon glyphicon-star" style="position:absolute; margin-top:8px; margin-left:-10px;font-size:20px;color:blue;"></a></button>
-</div>
+<body>
 <div id='viewerBlock' style='width:100%;'>
    <div id='myViewer'></div>
    <div id='mySliderViewer'></div>
@@ -65,6 +60,11 @@
       <button id="baseBtn" type="button" class="btn btn-primary" onclick="toggleBase()">baseline</button>
      </div>
    </div>
+</div>
+<div id="testBlock" style='width:100%;border:1px solid red;height:40px; display:none;'>
+   <button id="sec-save-button" title="save,sec_list.json" class="btn btn-default sec-control-btn" onclick='saveSEC("sec_list.json")'><a id="saveSEC-toggle" class="glyphicon glyphicon-hand-up" style="position:absolute; margin-top:8px; margin-left:-12px;font-size:20px;color:red;"></a></button>
+   <button id="sec-load-button" title="load,sec_list.json" class="btn btn-default sec-control-btn" onclick='loadSEC("sec_list.json")'><a id="loadSEC-toggle" class="glyphicon glyphicon-hand-down" style="position:absolute; margin-top:8px; margin-left:-10px;font-size:20px;color:green;"></a></button>
+   <button id="sec-dummy-button" title="dummy" class="btn btn-default sec-control-btn" onclick='dummyClick()'><a id="dummy-toggle" class="glyphicon glyphicon-star" style="position:absolute; margin-top:8px; margin-left:-10px;font-size:20px;color:blue;"></a></button>
 </div>
 </body>
 </html>
