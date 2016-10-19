@@ -150,6 +150,9 @@ function processForPlotting(blob) {
      saveRegionEnd=t;
    }
    trackSliderClicks=[saveRegionStart, saveRegionEnd ];
+   if(saveDetectorName.length==0) {
+     saveDetectorName=setDefaultDetectorName(saveTrace);
+   }
 }
 
 // XXX something to look into, all traces are now assume
@@ -221,7 +224,7 @@ function updateLineChart() {
 
 function makeLinePlot(x,y,keys,colors) {
   var _data=getLinesAt(x, y,keys,colors);
-  var _layout=getLinesDefaultLayout();
+  var _layout=getLinesDefaultLayout(plotTitle(keys), plotYlabel(keys));
   var plot=addAPlot('#myViewer',_data, _layout,600,400, {displaylogo: false});
   return plot;
 }
@@ -243,7 +246,7 @@ function makeOne(xval,yval,trace,cval) {
   var marker_val = { size:10, color:cval};
   var t= { x:xval,
            y:yval, 
-           name:trimKey(trace), 
+           name:legendKey(trace), 
            marker: marker_val, 
            line : { width: 3},
            hoverinfo: 'x+y',
@@ -255,7 +258,7 @@ function makeOneWithText(xval,yval,trace,cval,tval) {
   var marker_val = { size:10, color:cval};
   var t= { x:xval,
            y:yval,
-           name:trimKey(trace),
+           name:legendKey(trace), 
            marker: marker_val,
            line : { width: 3},
            text: tval,
@@ -268,7 +271,7 @@ function makeSliderOne(xval,yval,trace,cval) {
   var marker_val = { size:10, color:cval};
   var t= { x:xval,
            y:yval,
-           name:trimKey(trace), 
+           name:'STANDARD            ',
            marker: marker_val, 
            hoverinfo: 'x+y',
            type:"scatter" };
@@ -295,7 +298,7 @@ function getLinesAt(x,y,trace,color) {
 // make it dashed lines
         if(i == saveStandard) {
           one.line = { dash : 'dash', width: 2 };
-          one.name= 'STANDARD',
+          one.name= 'STANDARD           ',
           one.marker.color= 'rgb(0,0,0)';
           hold_star=one;
           } else {
@@ -308,18 +311,6 @@ function getLinesAt(x,y,trace,color) {
   if(hold_star) 
     data.push(hold_star);
   return data;
-}
-
-function fillIn(name,newname) {
-  var len=name.length;
-  var diff=name.length - newname.length;
-  if(diff < 0)
-    return newname;
-  
-  for(var i=0;i< diff;i++) {
-    newname=newname+' ';
-  }
-  return newname;
 }
 
 function getSliderAt(x,y,trace,color) {
@@ -336,8 +327,7 @@ function getSliderDefaultLayout(subRange, fullRange ){
         margin: { t:50 },
         showlegend: true,
         hovermode: 'closest',
-        title: 'Select a region on the standard signal to mark the range used to normalize data',
-        xaxis: { title: 'Drag tabs to mark a region',
+        xaxis: { title: 'Drag tabs to mark a region to be used for normalize data',
                  range: subRange,
                  rangeslider: {
                     visible: true,
@@ -353,21 +343,21 @@ function getSliderDefaultLayout(subRange, fullRange ){
   return p;
 }
 
-function getLinesDefaultLayout(){
+function getLinesDefaultLayout(title,ylabel){
   var tmp;
   if(showNormalize==true)
-     tmp={ title:"Strength",
+     tmp={ title: ylabel+" (Normalized)",
            range:[0,1] };
      else  
-       tmp={ title:"Strength",
+       tmp={ title: ylabel,
              range:[ saveYmin,saveYmax] };
 
   var p= {
         width: 800,
         height: 300,
+        title: title,
         margin: { t:50, b:40 },
         showlegend: true,
-//        legend: { traceorder: 'reversed'},
         hovermode: 'closest',
         xaxis: { title: 'Time(minutes)'},
         yaxis: tmp,

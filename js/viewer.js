@@ -9,7 +9,8 @@
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL01.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL02.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL03.json&
-//     regionStart=5&regionEnd=9&base=3&standard=1
+//     regionStart=5&regionEnd=9&base=3&standard=1&
+//     detectorName="MWD E  Sig= 280  Ref= 360"
 //
 // regionStart, regionEnd are in minutes
 // base, standard is i_th url in the list (n-1)
@@ -31,6 +32,7 @@ var saveFirst=false;
 var saveURLs=[];
 var saveRegionStart=-1;
 var saveRegionEnd=-1;
+var saveDetectorName="";
 
 
 // this is minmax normalization
@@ -122,6 +124,11 @@ function processArgs(args) {
              if(!isNaN(t)) {
                saveStandard=(t==-1)?t:t-1;
              }
+             break;
+             }
+          case 'detectorName':
+             {
+             saveDetectorName=kvp[1];
              break;
              }
           default:
