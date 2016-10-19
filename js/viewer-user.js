@@ -6,12 +6,12 @@
 /*
 
 usc's signal2
-GPCRUSC20161012EXP2_2 (MWD E  Sig= 280  Ref= 360) -- fluorescence
+GPCRUSC20161012EXP2_2 (MWD1 E  Sig= 280  Ref= 360) -- fluorescence
 
 and
 
 usc's signal1
-GPCRUSC20161012EXP2_2 (MWD B  Sig= 280  Ref= off) -- absorbance
+GPCRUSC20161012EXP2_2 (MWD1 B  Sig= 280  Ref= off) -- absorbance
 
  and the legend is     Sample_fluorescence
          and           Sample_absorbance
@@ -60,7 +60,7 @@ function isFluorescence() {
   if(dname.length==0) {
     alertify.error("PANIC, missing DetectorName");
   }
-  var yes=dname.indexOf("MWD E");
+  var yes=dname.indexOf("MWD1 E ");
   if(yes != -1)
     return 1;
     else return 0;
@@ -71,7 +71,7 @@ function isAbsorbance() {
   if(dname.length > 0) {
     alertify.error("PANIC, missing DetectorName");
   }
-  var yes=key.indexOf("MWD B");
+  var yes=key.indexOf("MWD1 B ");
   if(yes > 0)
     return 1;
     else return 0;
@@ -128,8 +128,8 @@ function makeTimeKey(key) {
   return key+"_time";
 }
 
-var defaultDetectorNameSignal02="MWD E  Sig= 280  Ref= 360";
-var defaultDetectorNameSignal01="MWD B  Sig= 280  Ref= off";
+var defaultDetectorNameSignal02="MWD1 E  Sig= 280  Ref= 360";
+var defaultDetectorNameSignal01="MWD1 B  Sig= 280  Ref= off";
 
 function setDefaultDetectorName(keys) {
   var key=pickATarget(keys);
