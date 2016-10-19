@@ -295,6 +295,7 @@ function getLinesAt(x,y,trace,color) {
 // make it dashed lines
         if(i == saveStandard) {
           one.line = { dash : 'dash', width: 2 };
+          one.name= 'STANDARD',
           one.marker.color= 'rgb(0,0,0)';
           hold_star=one;
           } else {
@@ -309,9 +310,22 @@ function getLinesAt(x,y,trace,color) {
   return data;
 }
 
+function fillIn(name,newname) {
+  var len=name.length;
+  var diff=name.length - newname.length;
+  if(diff < 0)
+    return newname;
+  
+  for(var i=0;i< diff;i++) {
+    newname=newname+' ';
+  }
+  return newname;
+}
+
 function getSliderAt(x,y,trace,color) {
   var data=[];
-  data.push(makeSliderOne(x,y,trace,color)); 
+  var one=makeSliderOne(x,y,trace,color); 
+  data.push(one);
   return data;
 }
 
@@ -322,7 +336,8 @@ function getSliderDefaultLayout(subRange, fullRange ){
         margin: { t:50 },
         showlegend: true,
         hovermode: 'closest',
-        xaxis: { title: 'Drag to mark a range',
+        title: 'Select a region on the standard signal to mark the range used to normalize data',
+        xaxis: { title: 'Drag tabs to mark a region',
                  range: subRange,
                  rangeslider: {
                     visible: true,

@@ -38,22 +38,22 @@
 <body>
 <div id='viewerBlock' style='width:100%;'>
    <div id='myViewer'></div>
-   <div id='mySliderViewer'></div>
+   <div id='mySliderViewer' style='margin-top:20px;'></div>
 </div>
 <div id='controlBlock' style='width:100%; margin-left:50px;'>
    <div id='dataList' style='display:none'> <!-- take a list of checkbox --> </div>
    <div class="row" style='margin:4px'>
      <div class="col-md-1 col-xs-1 no-padding">
-       <button id="normalizeBtn" type="button" class="btn btn-primary" onclick="toggleNormalize()">minmax</button>
+       <button id="normalizeBtn" type="button" class="btn btn-primary" onclick="toggleNormalize()">normalization</button>
      </div>
-     <div class="col-md-6 col-xs-6 no-padding" id='normalizeDiv' style='display:none'>
-       <button id="againBtn" type="button" class="btn btn-primary" onclick="minmaxAgain()">again</button>
+     <div class="col-md-4 col-xs-4" id='normalizeDiv' style='display:none'>
+       <button id="againBtn" type="button" class="btn btn-primary" onclick="minmaxAgain()">rerun</button>
        <button id="resetBtn" type="button" class="btn btn-primary" onclick="resetSlider()">reset</button>
      </div>
    </div>
    <div class="row" style='margin:4px'>
      <div class="col-md-1 col-xs-1 no-padding">
-      <button id="baseBtn" type="button" class="btn btn-primary" onclick="toggleBase()">baseline</button>
+      <button id="baseBtn" type="button" class="btn btn-primary" onclick="toggleBase()">zero baseline</button>
      </div>
    </div>
 </div>
