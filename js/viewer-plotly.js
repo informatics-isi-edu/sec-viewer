@@ -393,9 +393,9 @@ function updateNormalizedLineChart() {
     var range=getNormRange(saveY[saveStandard].length, trackSliderClicks);
     makeMarkersOnSlider(range);
     
+// var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
 // make it full range as default case..
-//    var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
-    var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], [0, cnt]);
+   var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], [0, saveY[saveStandard].length]);
 //window.console.log("ratio's idx is ..", ratioIdx[0], " and ", ratioIdx[1]);
 //window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
 //" and ", toMinutes(saveY[saveStandard], ratioIdx[1]));
