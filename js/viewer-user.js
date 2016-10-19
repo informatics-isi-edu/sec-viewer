@@ -60,7 +60,7 @@ function isFluorescence() {
   if(dname.length==0) {
     alertify.error("PANIC, missing DetectorName");
   }
-  var yes=dname.indexOf("MWD1 E ");
+  var yes=dname.indexOf("MWD1 E");
   if(yes != -1)
     return 1;
     else return 0;
@@ -71,7 +71,7 @@ function isAbsorbance() {
   if(dname.length > 0) {
     alertify.error("PANIC, missing DetectorName");
   }
-  var yes=key.indexOf("MWD1 B ");
+  var yes=key.indexOf("MWD1 B");
   if(yes > 0)
     return 1;
     else return 0;
@@ -128,8 +128,10 @@ function makeTimeKey(key) {
   return key+"_time";
 }
 
-var defaultDetectorNameSignal02="MWD1 E  Sig= 280  Ref= 360";
-var defaultDetectorNameSignal01="MWD1 B  Sig= 280  Ref= off";
+//"detector_name": "MWD1 B, Sig=280,4 Ref=off"
+//"detector_name": "MWD1 E, Sig=280,4 Ref=360,4"
+var defaultDetectorNameSignal02="MWD1 E,  Sig=280,4  Ref= 360,4";
+var defaultDetectorNameSignal01="MWD1 B, Sig=280,4  Ref= off";
 
 function setDefaultDetectorName(keys) {
   var key=pickATarget(keys);

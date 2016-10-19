@@ -516,7 +516,6 @@ function calcTrackRatioIdx(targetY, nrange) {
 }
 
 function makeMarkersOnSlider(nrange) {
-
   var irange=getIndexMinMax(saveY[saveStandard].slice(nrange[0], nrange[1]));
   var minIdx=irange[0]+nrange[0];
   var maxIdx=irange[1]+nrange[0];
@@ -539,7 +538,7 @@ function addMarkerAnnotation(_x,_y) {
   var y=Math.round(_y *1000)/1000;
   var annotate_text = '('+x+','+y+')';
   var annotation = {
-      text: annotate_text,
+//      text: annotate_text,
       x: x,
       y: y,
       showarrow: true,
