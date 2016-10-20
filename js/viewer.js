@@ -10,7 +10,7 @@
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL02.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL03.json&
 //     regionStart=5&regionEnd=9&base=3&standard=1&
-//     detectorName="MWD1 E  Sig= 280  Ref= 360"
+//     detectorName="MWD1 E,  Sig=280,4  Ref= 360,4"
 //
 // regionStart, regionEnd are in minutes
 // base, standard is i_th url in the list (n-1)

@@ -287,7 +287,7 @@ function getLinesAt(x,y,trace,color) {
   var one;
   for (var i=0;i<cnt; i++) {
     if(showNormalize) { // include qualityY value on the hover 
-       var text="Quality Ratio: "+qualityY[i];
+       var text="dynQ Ratio: "+qualityY[i];
        one= makeOneWithText(x[i],y[i],trace[i],color[i],text);
        } else {
          one= makeOne(x[i],y[i],trace[i],color[i]);
@@ -398,24 +398,25 @@ function updateNormalizedLineChart() {
     var range=getNormRange(saveY[saveStandard].length, trackSliderClicks);
     makeMarkersOnSlider(range);
     
-// var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
-// make it full range as default case..
-   var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], [0, saveY[saveStandard].length]);
+// use dynamic selected range
+    var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
+// make it full range as always
+//   var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], [0, saveY[saveStandard].length]);
 //window.console.log("ratio's idx is ..", ratioIdx[0], " and ", ratioIdx[1]);
 //window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
 //" and ", toMinutes(saveY[saveStandard], ratioIdx[1]));
     for(var i=0;i<cnt;i++) {
       saveYnorm[i]=normalizeWithRange(saveY[i], saveY[i].slice(range[0],range[1]));
 //      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStandard].slice(range[0],range[1]));
-        if(qualityFirst) {
+//        if(qualityFirst) {
           var _y=saveY[i];
           var Y1=_y[ratioIdx[0]]
           var Y2=_y[ratioIdx[1]];
           qualityY[i]=Math.round((Y2/Y1)*1000)/1000;
 //window.console.log("qualitY for ",i, " is ", qualityY[i]);
-        }
+//        }
     }
-    qualityFirst=false;
+//    qualityFirst=false;
     normDiv.style.display='';
     } else {
       removeAnnotations(saveSliderPlot);

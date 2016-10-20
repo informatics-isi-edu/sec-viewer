@@ -16,6 +16,7 @@
 ##     will produce outdir/datafile.json
 ##                   outdir/datafile.csv
 ##                   outdir/datafile_meta.json
+##                   outdir/datafile_m.cvs
 ##                   outdir/datafile_base.json
 ##
 ## The data directory should be setup with cdf file with complete name like
@@ -35,7 +36,7 @@
 #
 ## the result is..
 ##GPCRUSC20161012EXP2_1_SIGNAL01.csv
-#standrdFile,standardQRatio,maxIdx,fcsQRatio,offsetIdx
+#standrdFile,standardQRatio,maxIdx,cdfQRatio,offsetIdx
 #GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM1/GPCRUSC20161012EXP1_1_SIGNAL01.cdf,
 #0.34429701072792135,1187,0.5341640341640341,1112
 #GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM2/GPCRUSC20161012EXP1_2_SIGNAL01.cdf,
@@ -145,11 +146,18 @@ def process_for_data(target,dataloc,qlist) :
             jlist[time_key]=tlist
             f.write(json.dumps(jlist))
             f.close()
+
             alist={} 
             m = open(fullpath+"_meta.json", 'w')
             alist[meta_key]=mlist
             m.write(json.dumps(alist))
             m.close()
+
+            with open(fullpath+'_m.csv', 'w') as ff:
+              w = csv.DictWriter(ff, mlist.keys())
+              w.writeheader()
+              w.writerow(mlist)
+
             s = open(fullpath+"_base.json", 'w')
             blist={}
             blist[key]=slist
@@ -160,7 +168,7 @@ def process_for_data(target,dataloc,qlist) :
               m=item['maxIdx']
               h=item['offsetIdx']
               fRatio = vlist[h]/vlist[m]
-              item['fcsQRatio']=fRatio
+              item['cdfQRatio']=fRatio
               qqlist.append(item)
             fitem=qqlist[0]
             with open(fullpath+'.csv', 'w') as f:
