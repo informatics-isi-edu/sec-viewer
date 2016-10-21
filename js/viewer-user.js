@@ -107,7 +107,7 @@ function plotTitle(keys) {
 
   var name=key.substring(0,s);
   name=name+ " (" +saveDetectorName+ ")";
-  window.console.log(name)
+  window.console.log(name);
   return name;
 }
 

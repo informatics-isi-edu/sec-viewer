@@ -89,6 +89,8 @@ function processArgs(args) {
       rc++;
       } else {
         var kvp = param.split('=');
+// to handle, detectorName="MWD1 E,  Sig=280,4  Ref= 360,4"
+        kvp[1]=param.split('=').slice(1).join('=');
         switch (kvp[0].trim()) {
           case 'url':
              {

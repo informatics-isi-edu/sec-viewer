@@ -21,26 +21,32 @@ function getKeys(blob) {
 }
 
 function setupUI() {
-  var dataKeys=saveTrace;
   var bElm = document.getElementById('controlBlock');
   if(bElm) {
-    setupCheckBtns(dataKeys);
-  }
+    var dataKeys=saveTrace;
+    var list = document.getElementById('dataList');
+    if(list) {
+       var _plist=setupCheckBtns(dataKeys);
+       list.innerHTML = _plist;
+       
+    }
+    var standardKeys=[];
+    for(var i=0; i< saveStandard.length; i++) {
+       var k=saveStandard[i];
+       standardKeys.push(saveTrace[i]);
+    }
+    list = document.getElementById('standardList');
+    if(list) {
+       var _plist=setupCheckBtns(standardKeys);
+       list.innerHTML = _plist;
+    }
+ }
 }
 
 function setupCheckBtns(keys) {
-  var list = document.getElementById('dataList');
-  if(list == null)
-    return;
-  list.innerHTML = '';
-  var outItem = '<div class="panel panel-default" style="width:35%">' +
-                       '<div class="list-group">';
-  for (var i = 0; i < keys.length; i++) {
-// can not really trim the key anymore..
-//    var oneItem = '<div class="list-group-item"><input type="checkbox" checked id="'+keys[i]+'" name="'+keys[i]+'" class="switch" onclick="toggleStarTrace('+i+')"/><label for="'+keys[i]+'">'+trimKey(keys[i])+'</label> </div>';
-    var oneItem = '<div class="list-group-item"><input type="checkbox" checked id="'+keys[i]+'" name="'+keys[i]+'" class="switch" onclick="toggleStarTrace('+i+')"/><label for="'+keys[i]+'">'+keys[i]+'</label> </div>';
-    outItem += oneItem;
+  var _plist = '<option selected="selected" value="' + keys[0] + '">' + keys[0] + '</option>';
+  for(var i=1; i<keys.length; i++) {
+      _plist += '<option value="' + keys[i] + '">' + keys[i] + '</option>';
   }
-  outItem += '</div></div>';
-  list.innerHTML += outItem;
+  return _plist;
 }
