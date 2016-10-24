@@ -96,6 +96,7 @@ function pickATarget() {
   var _keys=saveDataTrace;
   for(var i=0; i< _idx.length; i++) {
     if(_idx[i] != saveBaseIdx) {
+window.console.log("pickATarget..", _keys[i]);
        return _keys[i];
     }
   }
