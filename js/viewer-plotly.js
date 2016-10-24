@@ -473,7 +473,9 @@ function reprocessForNormalize() {
       saveYnorm[i]=normalizeWithRange(saveY[i], saveY[i].slice(range[0],range[1]));
 //      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStandard].slice(range[0],range[1]));
 //        if(qualityFirst) {
-          var _y=saveY[i];
+//Mike said the Q ratio is based on normized Y values
+//          var _y=saveY[i];
+          var _y=saveYnorm[i];
           var Y1=_y[ratioIdx[0]]
           var Y2=_y[ratioIdx[1]];
           qualityY[i]=Math.round((Y2/Y1)*1000)/1000;
