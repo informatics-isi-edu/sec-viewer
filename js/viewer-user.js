@@ -104,11 +104,18 @@ window.console.log("pickATarget..", _keys[i]);
   
 }
 
+// test1.json
 function plotTitle() {
   var key=pickATarget();
   var s = key.indexOf("_SIGNAL"); 
-
-  var name=key.substring(0,s);
+  var j = key.indexOf(".json");
+  var name=key;
+  if( j != -1) {
+    name=name.substring(0,s);
+  }
+  if(s != -1) {
+    name=name.substring(0,s);
+  }
   name=name+ " (" +saveDetectorName+ ")";
   window.console.log(name);
   return name;
