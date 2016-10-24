@@ -107,12 +107,12 @@ window.console.log("pickATarget..", _keys[i]);
 // test1.json
 function plotTitle() {
   var key=pickATarget();
-  var s = key.indexOf("_SIGNAL"); 
-  var j = key.indexOf(".json");
   var name=key;
+  var j = name.indexOf(".json");
   if( j != -1) {
-    name=name.substring(0,s);
+    name=name.substring(0,j);
   }
+  var s = name.indexOf("_SIGNAL"); 
   if(s != -1) {
     name=name.substring(0,s);
   }
