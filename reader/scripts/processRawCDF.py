@@ -18,10 +18,10 @@
 ##
 ## usage: ./processRAWCDF.py [dataDir|datafile] outDir [standard(s)]
 ##
-##     will produce outdir/datafile.json
+##     will produce outdir/datafile_m.json
 ##                  outdir/datafile.csv
 ##                  outdir/datafile_meta.json
-##                  outdir/datafile_m.cvs
+##                  outdir/datafile_meta.cvs
 ##                  outdir/datafile_base.json
 ##
 ## The data directory should be setup with cdf file with complete name like
@@ -40,8 +40,8 @@
 #GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM2/GPCRUSC20161012EXP1_2_SIGNAL01.cdf
 #
 ## the result is..
-##GPCRUSC20161012EXP2_1_SIGNAL01.csv
-#standrdFile,standardQRatio,maxIdx,cdfQRatio,offsetIdx
+##GPCRUSC20161012EXP2_1_SIGNAL01_m.csv
+#standardFile,standardQRatio,maxIdx,cdfQRatio,offsetIdx
 #GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM1/GPCRUSC20161012EXP1_1_SIGNAL01.cdf,
 #0.34429701072792135,1187,0.5341640341640341,1112
 #GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM2/GPCRUSC20161012EXP1_2_SIGNAL01.cdf,
@@ -128,18 +128,19 @@ def process_for_standard(slist) :
 ## calculating the RangeStart and RangeEnd
       start_v=tlist[max_idx]-RANGE_OFFSET_START;
       start_idx=max_idx
+      lastone=tlist[size(vlist)-1]
       for i in range(start_idx, 0, -1) :
         if(tlist[i] <= start_v):
            start_idx=i
            break
       end_v=tlist[max_idx]+RANGE_OFFSET_END;
       end_idx=max_idx
-      for i in range(max_idx, end_idx, 1) :
+      lastone=size(vlist)-1
+      for i in range(end_idx, lastone, 1) :
         if(tlist[i] >= end_v):
            end_idx=i
            break
-#XX
-      item={ 'maxIdx': max_idx, 'offsetIdx':hit_idx, 'standardQRatio':qRatio, 'standrdFile':standard , 'startRangeIdx':start_idx, 'endRangeIdx':end_idx} 
+      item={ 'maxIdx': max_idx, 'offsetIdx':hit_idx, 'standardQRatio':qRatio, 'standardFile':standard , 'startRangeIdx':start_idx, 'endRangeIdx':end_idx} 
       rlist.append(item)
     return rlist
 
@@ -179,7 +180,7 @@ def process_for_data(target,dataloc,qlist) :
             m.write(json.dumps(alist))
             m.close()
 
-            with open(fullpath+'_m.csv', 'w') as ff:
+            with open(fullpath+'_meta.csv', 'w') as ff:
               w = csv.DictWriter(ff, mlist.keys())
               w.writeheader()
               w.writerow(mlist)
@@ -200,7 +201,7 @@ def process_for_data(target,dataloc,qlist) :
               item['cdfQRatio']=fRatio
               qqlist.append(item)
             fitem=qqlist[0]
-            with open(fullpath+'.csv', 'w') as f:
+            with open(fullpath+'_m.csv', 'w') as f:
               w = csv.DictWriter(f, fitem.keys())
               w.writeheader()
               for item in qqlist :
