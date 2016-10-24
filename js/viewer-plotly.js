@@ -42,6 +42,10 @@ var trackSliderClicks=[]; // default region range (in minutes)
                           // saveRegionStart, saveBaseEnd set from commandline
 var trackRatio=null;      // the index corresponds to the region 
 
+//Y1 = measured at x(on trace) where standard Y is maximum
+//Y2 = measured at y1) - 0.5 min  
+var QRatioOffset=0.5;
+
 var saveYmax=null;
 var saveYmin=null;
 var saveXmax=null;
@@ -572,11 +576,9 @@ function removeOverlayArea(aPlot)
   Plotly.relayout(aPlot,update);
 }
 
-//Y1 = measured at x(on trace) where standard Y is maximum
-//Y2 = measured at y1) - 0.5 min  
 function calcTrackRatioIdx(targetY, nrange) {
   var cnt=targetY.length;
-  var delta=toIndex(cnt, 0.5);
+  var delta=toIndex(cnt, QRatioOffset);
   var irange=getIndexMinMax(saveY[saveStandard].slice(nrange[0], nrange[1]));
   var maxIdx=irange[1]+nrange[0];
   var nextIdx=maxIdx - delta;
