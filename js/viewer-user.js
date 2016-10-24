@@ -77,12 +77,14 @@ function isAbsorbance() {
     else return 0;
 }
 
-function legendKey() {
+function legendKey(trace,dataIdx) {
   var name="Sample";
   if(isFluorescence()) {
-    name=name+"_fluorescence";
+    if(dataIdx != -1) name=name+dataIdx+"_fluorescence";
+      else name=name+"_fluorescence";
     } else {
-      name=name+"_absorbance";
+      if(dataIdx != -1) name=name+dataIdx+"_absorbance";
+      else name=name+"_absorbance";
   }
   return name;
 }

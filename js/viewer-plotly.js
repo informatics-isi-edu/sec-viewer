@@ -295,11 +295,11 @@ function resetSliderPlot() {
   saveSliderPlot=makeSliderPlot();
 }
 
-function makeOne(xval,yval,trace,cval) {
+function makeOne(xval,yval,trace,cval,dataIdx) {
   var marker_val = { size:10, color:cval};
   var t= { x:xval,
            y:yval, 
-           name:legendKey(trace), 
+           name:legendKey(trace,dataIdx), 
            marker: marker_val, 
            line : { width: 3},
            hoverinfo: 'x+y',
@@ -307,11 +307,11 @@ function makeOne(xval,yval,trace,cval) {
   return t;
 }
 
-function makeOneWithText(xval,yval,trace,cval,tval) {
+function makeOneWithText(xval,yval,trace,cval,tval,dataIdx) {
   var marker_val = { size:10, color:cval};
   var t= { x:xval,
            y:yval,
-           name:legendKey(trace), 
+           name:legendKey(trace,dataIdx), 
            marker: marker_val,
            line : { width: 3},
            text: tval,
@@ -339,12 +339,13 @@ function getLinesAt(x,y,trace,color) {
   var one;
   for (var i=0;i<cnt; i++) {
 // if data or current standard index 
-    if (saveDataIdx.indexOf(i) != -1 || i == saveStandard ) { 
+    var isDataIdx=saveDataIdx.indexOf(i);
+    if (isDataIdx != -1 || i == saveStandard ) { 
       if(showNormalize) { // include qualityY value on the hover 
-        var text="dynQ Ratio: "+qualityY[i];
-        one= makeOneWithText(x[i],y[i],trace[i],color[i],text);
+        var text="d.Q Ratio: "+qualityY[i];
+        one= makeOneWithText(x[i],y[i],trace[i],color[i],text, isDataIdx);
         } else {
-          one= makeOne(x[i],y[i],trace[i],color[i]);
+          one= makeOne(x[i],y[i],trace[i],color[i], isDataIdx);
       }
 // the current standard index
       if(i == saveStandard) {
