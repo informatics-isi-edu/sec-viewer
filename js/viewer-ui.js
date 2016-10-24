@@ -30,12 +30,18 @@ function setupUI() {
 
 function setupStandardList(idx,keys) {
   var list = document.getElementById('standardList');
-  if(list) {
-    var _plist = '<option selected="selected" value="' + idx[0] + '">' + keys[0]  + '</option>';
-    for(var i=1; i<keys.length; i++) {
-      _plist += '<option value="' + idx[i] + '">' + keys[i] + '</option>';
-    }
-    list.innerHTML=_plist;
-    $('#standardList').val(idx[0]).trigger('change');
-  }  
+window.console.log("keys length..", keys.length);
+  if(keys.length > 1) {
+    if(list) {
+      var _plist = '<option selected="selected" value="' + idx[0] + '">' + keys[0]  + '</option>';
+      for(var i=1; i<keys.length; i++) {
+        _plist += '<option value="' + idx[i] + '">' + keys[i] + '</option>';
+      }
+      list.innerHTML=_plist;
+      $('#standardList').val(idx[0]).trigger('change');
+    }  
+  } else {
+    var sdiv = document.getElementById('standardSelect');
+    sdiv.style.display='none';
+  }
 }
