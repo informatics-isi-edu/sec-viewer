@@ -609,7 +609,7 @@ function addMarkerAnnotation(_x,_y) {
       ay: -20 
   };
 
-//  var ss = saveSliderPlot;
+  var ss = saveSliderPlot;
 //  var d=Math.max.apply(Math,saveSliderPlot.data[0].y);
 
   var annotations = ss.layout.annotations || [];
