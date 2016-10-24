@@ -474,11 +474,15 @@ function reprocessForNormalize() {
 //      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStandard].slice(range[0],range[1]));
 //        if(qualityFirst) {
 //Mike said the Q ratio is based on normized Y values
-//          var _y=saveY[i];
           var _y=saveYnorm[i];
           var Y1=_y[ratioIdx[0]]
           var Y2=_y[ratioIdx[1]];
-          qualityY[i]=Math.round((Y2/Y1)*1000)/1000;
+          var _yy=saveY[i];
+          var YY1=_yy[ratioIdx[0]]
+          var YY2=_yy[ratioIdx[1]];
+          var _m= Math.round((Y2/Y1)*1000)/1000;
+          var _mm= Math.round((YY2/YY1)*1000)/1000;
+          qualityY[i]= _m + "("+_mm+")";
 //window.console.log("qualitY for ",i, " is ", qualityY[i]);
 //        }
     }
