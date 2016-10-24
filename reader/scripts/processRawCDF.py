@@ -140,7 +140,11 @@ def process_for_standard(slist) :
         if(tlist[i] >= end_v):
            end_idx=i
            break
-      item={ 'maxIdx': max_idx, 'offsetIdx':hit_idx, 'standardQRatio':qRatio, 'standardFile':standard , 'startRangeIdx':start_idx, 'endRangeIdx':end_idx} 
+      item={ 'maxIdx': max_idx, 'maxTime':round(tlist[max_idx],2), 
+             'offsetIdx':hit_idx, 'offsetTime':round(tlist[hit_idx],2),
+             'standardQRatio':qRatio, 'standardFile':standard , 
+             'startRangeIdx':start_idx, 'startRangeTime':round(tlist[start_idx],2),
+             'endRangeIdx':end_idx, 'endRangeTime':round(tlist[end_idx],2)} 
       rlist.append(item)
     return rlist
 
