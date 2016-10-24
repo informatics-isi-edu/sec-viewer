@@ -23,30 +23,18 @@ function getKeys(blob) {
 function setupUI() {
   var bElm = document.getElementById('controlBlock');
   if(bElm) {
-    var dataKeys=saveTrace;
-    var list = document.getElementById('dataList');
-    if(list) {
-       var _plist=setupCheckBtns(dataKeys);
-       list.innerHTML = _plist;
-       
-    }
-    var standardKeys=[];
-    for(var i=0; i< saveStandard.length; i++) {
-       var k=saveStandard[i];
-       standardKeys.push(saveTrace[i]);
-    }
-    list = document.getElementById('standardList');
-    if(list) {
-       var _plist=setupCheckBtns(standardKeys);
-       list.innerHTML = _plist;
-    }
+    setupStandardList(saveStandardIdx, saveStandardTrace);
  }
 }
 
-function setupCheckBtns(keys) {
-  var _plist = '<option selected="selected" value="' + keys[0] + '">' + keys[0] + '</option>';
-  for(var i=1; i<keys.length; i++) {
-      _plist += '<option value="' + keys[i] + '">' + keys[i] + '</option>';
-  }
-  return _plist;
+function setupStandardList(idx,keys) {
+  var list = document.getElementById('standardList');
+  if(list) {
+    var _plist = '<option selected="selected" value="' + idx[0] + '">' + keys[0]  + '</option>';
+    for(var i=1; i<keys.length; i++) {
+      _plist += '<option value="' + idx[i] + '">' + keys[i] + '</option>';
+    }
+    list.innerHTML=_plist;
+    $('#standardList').val(idx[0]).trigger('change');
+  }  
 }

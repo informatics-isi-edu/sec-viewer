@@ -84,9 +84,8 @@ function normalizeWithZero(y,zerobase) {
   var cnt=y.length;
   var len=zerobase.length;
   var p=processArray(zerobase);
-  var colmin=p['mean'];
-window.console.log("mean is..",mean);
-  var delta=0-colmin;
+  var colmean=p['mean'];
+  var delta=0-colmean;
   var t;
   for(var i=0;i<cnt;i++) {
     t=y[i]+delta; 
@@ -104,13 +103,12 @@ function normalizeWithPeak(y,peakbase) {
   var cnt=y.length;
   var len=peakbase.length;
   var p=processArray(peakbase);
-  var colmin=p['mean'];
-window.console.log("mean is..",mean);
+  var colmean=p['mean'];
   var max=Math.max.apply(Math,peakbase);
-  var colrage=max-colmin;
+  var colrang=max-colmean;
   var t;
   for(var i=0;i<cnt;i++) {
-    t=(y[i]-colmin)/(colrang); 
+    t=(y[i]-colmean)/(colrang); 
     n.push(t);
   }
   return n;

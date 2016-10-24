@@ -38,15 +38,14 @@
 <body>
 <div id='viewerBlock' style='width:100%;'>
    <div id='myViewer'></div>
-   <div id='mySliderViewer' style='margin-top:20px;'></div>
+   <div id='mySliderViewer' style='margin-top:10px;'></div>
 </div>
 <div id='controlBlock' style='width:100%; margin-left:50px;'>
-   <div id='dataList' style='display:none'> <!-- take a list of checkbox --> </div>
    <div class="row" style='margin:4px'>
      <div class="col-md-1 col-xs-1 no-padding">
        <button id="normalizeBtn" type="button" class="btn btn-primary" onclick="toggleNormalize()">Normalize Y</button>
      </div>
-     <div class="col-md-4 col-xs-4" id='normalizeDiv' style='display:none'>
+     <div class="col-md-2 col-xs-2" id='normalizeDiv' style='display:none; margin-left:10px;'>
        <button id="againBtn" type="button" class="btn btn-primary" onclick="minmaxAgain()">rerun</button>
        <button id="resetBtn" type="button" class="btn btn-primary" onclick="resetSlider()">reset</button>
      </div>
@@ -56,11 +55,12 @@
       <button id="baseBtn" type="button" class="btn btn-primary" onclick="toggleBase()">Zero Y</button>
      </div>
    </div>
-</div>
-<div id="testBlock" style='width:100%;border:1px solid red;height:40px; display:none;'>
-   <button id="sec-save-button" title="save,sec_list.json" class="btn btn-default sec-control-btn" onclick='saveSEC("sec_list.json")'><a id="saveSEC-toggle" class="glyphicon glyphicon-hand-up" style="position:absolute; margin-top:8px; margin-left:-12px;font-size:20px;color:red;"></a></button>
-   <button id="sec-load-button" title="load,sec_list.json" class="btn btn-default sec-control-btn" onclick='loadSEC("sec_list.json")'><a id="loadSEC-toggle" class="glyphicon glyphicon-hand-down" style="position:absolute; margin-top:8px; margin-left:-10px;font-size:20px;color:green;"></a></button>
-   <button id="sec-dummy-button" title="dummy" class="btn btn-default sec-control-btn" onclick='dummyClick()'><a id="dummy-toggle" class="glyphicon glyphicon-star" style="position:absolute; margin-top:8px; margin-left:-10px;font-size:20px;color:blue;"></a></button>
+   <div class="control-line row" style='margin:4px;'>
+     <div class="col-md-6 col-xs-6 no-padding">
+       <label for="standardList">Select a Standard</label>
+       <select required id="standardList" class="select-input standardList-select2"></select>
+     </div>
+   </div>
 </div>
 </body>
 </html>

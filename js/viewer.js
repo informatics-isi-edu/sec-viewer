@@ -10,7 +10,9 @@
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL02.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL03.json&
 //     regionStart=5&regionEnd=9&base=3&standard=1&
+//     standard=1&
 //     detectorName="MWD1 E,  Sig=280,4  Ref= 360,4"
+//     
 //
 // regionStart, regionEnd are in minutes
 // base, standard is i_th url in the list (n-1)
@@ -19,6 +21,7 @@
 //                  default is 0 for standard and also for base unless specified
 //      if there is a supplied baseline, then smoothing is by the line
 //         or else smoothing is by the min of each trace within the 'region'
+// there could be one or more standard
 //                 
 
 
@@ -32,7 +35,7 @@ var saveFirst=false;
 var saveURLs=[];
 var saveRegionStart=-1;
 var saveRegionEnd=-1;
-var saveDetectorName="";
+var saveDetectorName=null;
 
 
 // this is minmax normalization
@@ -74,7 +77,6 @@ function minmaxAgain() {
 function resetSlider() {
   resetSliderPlot();
   updateNormalizedLineChart();
-//  toggleNormalize();
 }
 
 
@@ -123,14 +125,18 @@ function processArgs(args) {
           case 'standard':
              {
              var t=parseInt(kvp[1]);
-             if(!isNaN(t)) {
-               saveStandard=(t==-1)?t:t-1;
+             if(!isNaN(t) && t > 0) {
+               saveStandardIdx.push(t-1);
              }
              break;
              }
           case 'detectorName':
              {
-             saveDetectorName=kvp[1];
+// trim " from the head and tail
+             var str=kvp[1];
+             if(str[0] == "\"" && str[ str.length-1 ] == "\"")
+               str=str.substr(1,str.length-2);
+             saveDetectorName=str;
              break;
              }
           default:
@@ -173,7 +179,6 @@ function loadBlobFromJsonFile(fname) {
 
 // initial plot to display
 function reset2InitPlot() {
-//XXX  do some resetting
   displayInitPlot();
 }
 
@@ -194,6 +199,9 @@ function displayInitPlot() {
 
 /*****MAIN*****/
 jQuery(document).ready(function() {
+
+$('#standardList').select2({theme:"classic"});
+$('#standardList').select2({dropdownAutoWidth : true});
 
   var args=document.location.href.split('?');
   if (args.length ==2) {
@@ -225,6 +233,13 @@ jQuery(document).ready(function() {
       alertify.error("Usage: view.html?http://datapath/data.json");
       return;
   }
+
+  $('#standardList').change(function() {
+    var standard = document.getElementById("standardList").value;
+//window.console.log("TOGGLE.. standard to ", standard);
+    saveStandard=standard;
+    updateEverything();
+  });
 
   if(!enableEmbedded) {
     displayInitPlot();

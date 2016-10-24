@@ -87,22 +87,22 @@ function legendKey() {
   return name;
 }
 
-// need to pick the target key
-// in current particular case, it is the one that is not
-// standard
-function pickATarget(keys) {
-  var i=keys.length;
-  var s=saveStandard;
-  if(i != 2) {
-    alertify.error("PANIC, too many url");
+// always pick the one that is not base
+// saveDataTrace --> could be a signal or the baseline trace
+function pickATarget() {
+  var _idx=saveDataIdx;
+  var _keys=saveDataTrace;
+  for(var i=0; i< _idx.length; i++) {
+    if(_idx[i] != saveBaseIdx) {
+       return _keys[i];
+    }
   }
-  if(s==0) i=1;
-    else i=0; 
-  return keys[i];
+  alertify.error("PANIC, missing Target trace");
+  
 }
 
-function plotTitle(keys) {
-  var key=pickATarget(keys);
+function plotTitle() {
+  var key=pickATarget();
   var s = key.indexOf("_SIGNAL"); 
 
   var name=key.substring(0,s);
@@ -111,7 +111,7 @@ function plotTitle(keys) {
   return name;
 }
 
-function plotYlabel(keys) {
+function plotYlabel() {
   var ylabel;
   if(isFluorescence()) {
     ylabel="mAu";
@@ -133,8 +133,8 @@ function makeTimeKey(key) {
 var defaultDetectorNameSignal02="MWD1 E,  Sig=280,4  Ref= 360,4";
 var defaultDetectorNameSignal01="MWD1 B, Sig=280,4  Ref= off";
 
-function setDefaultDetectorName(keys) {
-  var key=pickATarget(keys);
+function setDefaultDetectorName() {
+  var key=pickATarget();
   var s = key.indexOf("_SIGNAL02"); 
   if( s != -1 )
     return defaultDetectorNameSignal02;
