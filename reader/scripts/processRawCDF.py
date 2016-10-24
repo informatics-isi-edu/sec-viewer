@@ -1,23 +1,28 @@
 #!/usr/bin/env python
 ##
 ##
-## Given a path to original SEC cdf data directory,
-##   Process the standard.cdf and look for the index to be used
-##   for calculating the quality ratio
-##   Iterate through data directory looking for exp_singnalID.cdf
+##   Given a path to original SEC cdf data directory or a path to 
+##     a cdf file, and none or more standard.cdf files.
+##
+##   If there are one or more standard.cdf file, process the first
+##     one and use it to look for the index to be used to calculate
+##     the quality ratio. If there is none, then substitue in the current
+##     data cdf file a the standard.
+##   Iterate through data directory looking for exp_singnalID.cdf or
+##     directly supplied cdf data file
 ##   extract the ordinate_values within and generate a single JSON file
-##   per signal channel for visualization purpose
+##     (a signal channel) for visualization purpose
 ##   extract meta data and store as a separate file_meta.json file
 ##   extract baseline information and store as a separate 
 ##                                             file_base.json file
 ##
-## usage: ./processRAWCDF.py dataDir outDir standard(s)
+## usage: ./processRAWCDF.py [dataDir|datafile] outDir [standard(s)]
 ##
 ##     will produce outdir/datafile.json
-##                   outdir/datafile.csv
-##                   outdir/datafile_meta.json
-##                   outdir/datafile_m.cvs
-##                   outdir/datafile_base.json
+##                  outdir/datafile.csv
+##                  outdir/datafile_meta.json
+##                  outdir/datafile_m.cvs
+##                  outdir/datafile_base.json
 ##
 ## The data directory should be setup with cdf file with complete name like
 ##    IMPT6749_NTX_E2-3_012216-SIGNAL01.cdf
@@ -61,6 +66,10 @@ import json
 
 encoding = 'utf8'
 DEBUG_PRINT = 0
+QRATIO_OFFSET = 0.5 # minutes ahead of standard's max 
+RANGE_OFFSET_START = 3 # peakmax (X) - 3minutes 
+RANGE_OFFSET_END = 0.5 # peakmax (X) + 0.5 minutes
+
 
 peaklist=[ 'peak_retention_time', 'peak_start_time', 'peak_end_time',
            'peak_width', 'peak_area', 'peak_area_percent', 'peak_height',
@@ -100,9 +109,12 @@ def process_for_standard(slist) :
 
       max_v=max(vlist)
       max_idx=vlist.index(max_v)
+
       print("standard max data",max_v)
       print("standard max idx",max_idx)
-      hit_v=tlist[max_idx]-0.5;
+
+## calculate the Y1 idx for QRatio
+      hit_v=tlist[max_idx]-QRATIO_OFFSET;
       hit_idx=max_idx
       for i in range(max_idx, 0, -1) :
         if(tlist[i] < hit_v):
@@ -113,7 +125,21 @@ def process_for_standard(slist) :
       print("standard hit data",hit_v) 
       print("standard hit idx", hit_idx)
       print("standard Quality ratio",qRatio) 
-      item={ 'maxIdx': max_idx, 'offsetIdx':hit_idx, 'standardQRatio':qRatio, 'standrdFile':standard } 
+## calculating the RangeStart and RangeEnd
+      start_v=tlist[max_idx]-RANGE_OFFSET_START;
+      start_idx=max_idx
+      for i in range(start_idx, 0, -1) :
+        if(tlist[i] <= start_v):
+           start_idx=i
+           break
+      end_v=tlist[max_idx]+RANGE_OFFSET_END;
+      end_idx=max_idx
+      for i in range(max_idx, end_idx, 1) :
+        if(tlist[i] >= end_v):
+           end_idx=i
+           break
+#XX
+      item={ 'maxIdx': max_idx, 'offsetIdx':hit_idx, 'standardQRatio':qRatio, 'standrdFile':standard , 'startRangeIdx':start_idx, 'endRangeIdx':end_idx} 
       rlist.append(item)
     return rlist
 
@@ -163,6 +189,9 @@ def process_for_data(target,dataloc,qlist) :
             blist[key]=slist
             s.write(json.dumps(blist))
             s.close()
+## use itself if there is no standard 
+            if len(qlist) == 0:
+              qlist=process_for_standard([ os.path.join(dir,file) ])
             qqlist=[]
             for item in qlist :
               m=item['maxIdx']
@@ -331,8 +360,10 @@ def process_for_file(dir,file):
 
 ################ MAIN #################################
 
-if(len(sys.argv) < 4) :
-  print "Usage: processRawSEC.py [dataDir|datafile] outDir standard(s)"
+if(len(sys.argv) < 3) :
+  print("BAD>>", len(sys.argv))
+  print(sys.argv)
+  print "Usage: processRawSEC.py [dataDir|datafile] outDir [standard(s)]"
   exit(1)
 
 standard=sys.argv[1]
@@ -349,6 +380,10 @@ if not os.path.exists(dataloc):
 if not os.path.exists(outdir):
   os.mkdir(outdir)
 
-slist=process_for_standard(standardlist)
+
+if len(standardlist) ==0 :
+  slist=[]
+else:
+  slist=process_for_standard(standardlist)
 process_for_data(outdir,dataloc,slist)
 
