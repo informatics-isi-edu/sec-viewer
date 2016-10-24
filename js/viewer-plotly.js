@@ -59,13 +59,13 @@ function setupColorMap() {
   var c2=colorbrewer.Set1[8];
   var c3=colorbrewer.Paired[8];
   for( var i=0; i<8; i++) {
-    colorMap.push(c1[i]);
+    colorMap.push(c3[i]);
   }
   for( var i=0; i<8; i++) {
     colorMap.push(c2[i]);
   }
   for( var i=0; i<8; i++) {
-    colorMap.push(c3[i]);
+    colorMap.push(c1[i]);
   }
 }
 
@@ -415,6 +415,7 @@ function getLinesDefaultLayout(title,ylabel){
         title: title,
         margin: { t:50, b:40 },
         showlegend: true,
+//        legend: {traceorder: 'reversed'},
         hovermode: 'closest',
         xaxis: { title: 'Time(minutes)'},
         yaxis: tmp,
