@@ -118,6 +118,11 @@ function processForPlotting(blob) {
    // default to the first url
    if(saveStandardIdx.length==0) 
      saveStandardIdx=[0];
+   // reset the range to the whole time series
+   if(saveStandardIdx.length > 1) {
+     saveRegionStart = -1;
+     saveRegionEnd = -1;
+   }
 
    for(var i=0;i<cnt;i++) {
      var k=_trace[i];

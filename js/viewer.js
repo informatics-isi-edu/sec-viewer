@@ -6,15 +6,17 @@
 //     http://localhost/data/SEC/IMPT6750_NTX_E2-3_020216-SIGNAL01.json
 //
 //  http://localhost/plotly/view.html?
+//     url=http://localhost/data/plotly/IMPT6750_NTX_E1-1_020216-SIGNAL01.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL01.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL02.json&
-//     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL03.json&
 //     regionStart=5&regionEnd=9&base=3&standard=1&
 //     standard=1&
 //     detectorName="MWD1 E,  Sig=280,4  Ref= 360,4"
 //     
 //
 // regionStart, regionEnd are in minutes
+//   if there are more than one standard, then regionStart and regionEnd is
+//   reset to span the whole time series
 // base, standard is i_th url in the list (n-1)
 // for the example, the default region segment is from minute-5 to minute-9
 //                  base is signal03 and standardline is signal01  
