@@ -29,23 +29,26 @@
 ## to avoid name collision
 ##
 ## examples
-##  processRAWCDF.py GPCR/EXP1 resultLoc standard.cdf(s)
+##  processRAWCDF.py GPCR/EXP1 resultLoc [standard.cdf(s)]
 ##  processRAWCDF.py GPCR/EXP1/GPCRUSC20161012EXP2_3_SIGNAL03.cdf resultLoc standard.cdf(s)
 ##
 ## an actual example,
 #env PYTHONPATH=/Library/Python/2.7/site-packages ./processRAWCDF.py 
-#GPCR/GPCRUSC20161012EXP2/GPCRUSC20161012SAM3/GPCRUSC20161012EXP2_1_SIGNAL01.cdf
-#resultCDF2 
+#GPCR/GPCRUSC20161012EXP2/GPCRUSC20161012SAM3/GPCRUSC20161012EXP2_1_SIGNAL01.cdf 
+#resultCDF22 
 #GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM1/GPCRUSC20161012EXP1_1_SIGNAL01.cdf
-#GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM2/GPCRUSC20161012EXP1_2_SIGNAL01.cdf
+#GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM2/GPCRUSC20161012EXP1_2_SIGNAL01.cdf 
 #
 ## the result is..
-##GPCRUSC20161012EXP2_1_SIGNAL01_m.csv
-#standardFile,standardQRatio,maxIdx,cdfQRatio,offsetIdx
-#GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM1/GPCRUSC20161012EXP1_1_SIGNAL01.cdf,
-#0.34429701072792135,1187,0.5341640341640341,1112
-#GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM2/GPCRUSC20161012EXP1_2_SIGNAL01.cdf,
-#0.13526209031707057,1166,0.350049426914959,1091
+#offsetTime,cdfQRatio,maxValue,startRangeIdx,standardQRatio,startRangeTime,
+#maxIdx,endRangeTime,offsetIdx,vstandardQRatio,vcdfQRatio,maxTime,endRangeIdx,
+#standardFile
+#7.41,0.5445550217341569,169.14224243164062,737,0.34541714818964436,4.91,1187,
+#8.41,1112,0.34429701072792135,0.5341640341640341,7.91,1262,
+#GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM1/GPCRUSC20161012EXP1_1_SIGNAL01.cdf
+#7.27,0.3640831263887073,35.732269287109375,716,0.1589985853525587,4.77,1166,8.27,
+#1091,0.13526209031707057,0.350049426914959,7.77,1241,
+#GPCR/GPCRUSC20161012EXP1/GPCRUSC20161012SAM2/GPCRUSC20161012EXP1_2_SIGNAL01.cdf
 #
 ## ** remember to install netCDF4, python package
 ##
@@ -66,7 +69,7 @@ import json
 
 encoding = 'utf8'
 DEBUG_PRINT = 0
-QRATIO_OFFSET = 0.5 # minutes ahead of standard's max 
+QRATIO_OFFSET = 0.5 # peakmax(X) - 0.5 minutes
 RANGE_OFFSET_START = 3 # peakmax (X) - 3minutes 
 RANGE_OFFSET_END = 0.5 # peakmax (X) + 0.5 minutes
 
@@ -98,8 +101,10 @@ def list2dictionary(list):
     blist = {i: list[i] for i in range(0, len(list))}
     return blist
 
-## extract the idx for the max peak in standard and also
-## 0.5 minutes ahead of it
+## extract the idx for the max peak in standard 
+## and 0.5 minutes ahead of it
+## and 3 minutes ahead of it
+## and 0.5 minutes after it
 def process_for_standard(slist) :
     rlist=[]
     for standard in slist :
@@ -110,29 +115,19 @@ def process_for_standard(slist) :
       max_v=max(vlist)
       max_idx=vlist.index(max_v)
 
-      print("standard max data",max_v)
-      print("standard max idx",max_idx)
+      if DEBUG_PRINT:
+        print("standard max data",max_v)
+        print("standard max idx",max_idx)
 
-## calculate the Y1 idx for QRatio
-      hit_v=tlist[max_idx]-QRATIO_OFFSET;
-      hit_idx=max_idx
-      for i in range(max_idx, 0, -1) :
-        if(tlist[i] < hit_v):
-           hit_idx=i
-           break
-      hit_v=vlist[hit_idx]
-      qRatio=hit_v/max_v
-      print("standard hit data",hit_v) 
-      print("standard hit idx", hit_idx)
-      print("standard Quality ratio",qRatio) 
 ## calculating the RangeStart and RangeEnd
+## start_idx for RANGE_OFFSET_START
       start_v=tlist[max_idx]-RANGE_OFFSET_START;
       start_idx=max_idx
-      lastone=tlist[size(vlist)-1]
       for i in range(start_idx, 0, -1) :
         if(tlist[i] <= start_v):
            start_idx=i
            break
+## end_idx for RANGE_OFFSET_END
       end_v=tlist[max_idx]+RANGE_OFFSET_END;
       end_idx=max_idx
       lastone=size(vlist)-1
@@ -140,13 +135,45 @@ def process_for_standard(slist) :
         if(tlist[i] >= end_v):
            end_idx=i
            break
+## offset_idx for QRATIO_OFFSET
+      offset_v=tlist[max_idx]-QRATIO_OFFSET;
+      offset_idx=max_idx
+      for i in range(max_idx, 0, -1) :
+        if(tlist[i] < offset_v):
+           offset_idx=i
+           break
+## get the max and min within the range
+      section_v=vlist[start_idx:end_idx]
+      max_s=max(section_v)
+      min_s=min(section_v)
+      sdelta=max_s-min_s;
+      nvlist=[];
+      for i in range(0,len(vlist)) :
+        nvlist.append((vlist[i]-min_s)/(sdelta));
+
+      if DEBUG_PRINT:
+        print("nvlist's max ",nvlist[max_idx],"vlist's max",max_v);
+
+## from normalized list
+      qRatio=nvlist[offset_idx]/nvlist[max_idx]
+      vqRatio=vlist[offset_idx]/vlist[max_idx]
+
+      if DEBUG_PRINT:
+        print("standard Quality ratio",vqRatio) 
+        print("standard Quality ratio on normalized vlist",qRatio) 
+
       item={ 'maxValue': max_v,
-             'maxIdx': max_idx, 'maxTime':round(tlist[max_idx],2), 
-             'offsetIdx':hit_idx, 'offsetTime':round(tlist[hit_idx],2),
-             'standardQRatio':qRatio, 'standardFile':standard , 
-             'maxValue': vlist[max_idx],
-             'startRangeIdx':start_idx, 'startRangeTime':round(tlist[start_idx],2),
-             'endRangeIdx':end_idx, 'endRangeTime':round(tlist[end_idx],2)} 
+             'maxIdx': max_idx,
+             'maxTime':round(tlist[max_idx],2), 
+             'offsetIdx':offset_idx, 
+             'offsetTime':round(tlist[offset_idx],2),
+             'standardFile':standard , 
+             'standardQRatio':qRatio, 
+             'vstandardQRatio':vqRatio, 
+             'startRangeIdx':start_idx,
+             'startRangeTime':round(tlist[start_idx],2),
+             'endRangeIdx':end_idx, 
+             'endRangeTime':round(tlist[end_idx],2)} 
       rlist.append(item)
     return rlist
 
@@ -201,9 +228,22 @@ def process_for_data(target,dataloc,qlist) :
               qlist=process_for_standard([ os.path.join(dir,file) ])
             qqlist=[]
             for item in qlist :
-              m=item['maxIdx']
-              h=item['offsetIdx']
-              fRatio = vlist[h]/vlist[m]
+              m_idx=item['maxIdx']
+              h_idx=item['offsetIdx']
+              s_idx=item['startRangeIdx']
+              e_idx=item['endRangeIdx']
+## get the max and min within the range
+              section_v=vlist[s_idx:e_idx]
+              max_s=max(section_v)
+              min_s=min(section_v)
+              sdelta=max_s-min_s;
+              nvlist=[];
+              for i in range(0,len(vlist)) :
+                nvlist.append((vlist[i]-min_s)/(sdelta));
+              vfRatio = vlist[h_idx]/vlist[m_idx]
+## on normalized line
+              fRatio = nvlist[h_idx]/nvlist[m_idx]
+              item['vcdfQRatio']=vfRatio
               item['cdfQRatio']=fRatio
               qqlist.append(item)
             fitem=qqlist[0]
@@ -237,9 +277,10 @@ def generate_dataset_name(dir,fname):
       return fname
 
 def generate_base_list(mlist):
-    print 'peak_number:', mlist['peak_number']
-    print 'baseline_start_time:', mlist['baseline_start_time']
-    print 'baseline_stop_time:', mlist['baseline_stop_time']
+    if DEBUG_PRINT:
+      print 'peak_number:', mlist['peak_number']
+      print 'baseline_start_time:', mlist['baseline_start_time']
+      print 'baseline_stop_time:', mlist['baseline_stop_time']
     p=mlist['peak_number']
     ilist={}
     for i in range(0, p) :
@@ -351,10 +392,6 @@ def process_for_file(dir,file):
 
     max_v=max(vlist)
     min_v=min(vlist)
-    print("max data",max_v)
-    print("max idx",vlist.index(max_v))
-    print("min data",min_v)
-    print("min idx",vlist.index(min_v))
 
     inputgrp.close()
 
