@@ -526,7 +526,9 @@ function reprocessForBase() {
     if(hasBase()) { 
       s=normalizeWithBaseline(saveY[i], saveY[saveBaseIdx]);
       } else {
-        s=normalizeWithBaseMin(saveY[i], saveY[i].slice(range[0],range[1]));
+//??? should always use the whole range
+//        s=normalizeWithBaseMin(saveY[i], saveY[i].slice(range[0],range[1]));
+        s=normalizeWithBaseMin(saveY[i], saveY[i]);
     }
     saveYsmooth[i]=s;
   }
