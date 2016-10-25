@@ -45,6 +45,8 @@ var trackRatio=null;      // the index corresponds to the region
 //Y2 = measured at y1) - 0.5 min  
 var QRatioOffset=0.5;
 
+var saveNormYmax=null;
+var saveNormYmin=null;
 var saveYmax=null;
 var saveYmin=null;
 var saveXmax=null;
@@ -408,7 +410,7 @@ function getLinesDefaultLayout(title,ylabel){
   var tmp;
   if(showNormalize==true)
      tmp={ title: ylabel+" (Normalized)",
-           range:[0,1] };
+           range:[saveNormYmin,saveNormYmax] };
      else  
        tmp={ title: ylabel,
              range:[ saveYmin,saveYmax] };
@@ -471,17 +473,18 @@ function reprocessForNormalize() {
     makeMarkersOnSlider(range);
 //window.console.log("making markers on slider..");
     
-// use dynamic selected range
-    var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
-// make it full range as always
-//   var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], [0, saveY[saveStandard].length]);
-//window.console.log("ratio's idx is ..", ratioIdx[0], " and ", ratioIdx[1]);
-//window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
-//" and ", toMinutes(saveY[saveStandard], ratioIdx[1]));
-
 // normalize everything Y traces
     for(var i=0;i<cnt;i++) {
       saveYnorm[i]=normalizeWithRange(saveY[i], saveY[i].slice(range[0],range[1]));
+      var _max=Math.max.apply(Math,saveYnorm[i]);
+      var _min=Math.min.apply(Math,saveYnorm[i]);
+      if(i==0) {
+        saveNormYmax=_max;
+        saveNormYmin=_min;
+        } else {
+           if(_max > saveNormYmax) saveNormYmax=_max;
+           if(_min < saveNormYmin) saveNormYmin=_min;
+      }
     }
 // use dynamic selected range
     var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
@@ -498,6 +501,9 @@ window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
       var _yy=saveY[i];
       var YY1=_yy[ratioIdx[0]]
       var YY2=_yy[ratioIdx[1]];
+window.console.log("ABC");
+window.console.log("for YYY2s",Y2," ",YY2);
+window.console.log("for YYY1s",Y1," ",YY1);
       var _m= Math.round((Y2/Y1)*100)/100;
       var _mm= Math.round((YY2/YY1)*100)/100;
       qualityY[i]= _m + "("+_mm+")";
