@@ -501,13 +501,12 @@ window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
       var _yy=saveY[i];
       var YY1=_yy[ratioIdx[0]]
       var YY2=_yy[ratioIdx[1]];
-window.console.log("ABC");
-window.console.log("for YYY2s",Y2," ",YY2);
-window.console.log("for YYY1s",Y1," ",YY1);
+window.console.log("for Y2 ",Y2,", YY2 ",YY2);
+window.console.log("for Y1 ",Y1,", YY1 ",YY1);
       var _m= Math.round((Y2/Y1)*100)/100;
       var _mm= Math.round((YY2/YY1)*100)/100;
       qualityY[i]= _m + "("+_mm+")";
-//window.console.log("qualitY for ",i, " is ", qualityY[i]);
+window.console.log("qualitY for ",i, " is ", qualityY[i]);
     }
 }
 
