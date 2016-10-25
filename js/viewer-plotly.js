@@ -18,7 +18,6 @@ var saveYnorm=[];   // Ys normalized values, default, with full y range, recalcu
                     // with each normalizeButton toggling
 
 var qualityY=[];    // normalized quality of Y, calculated from the region pts
-var qualityFirst=true; // for now, just calculate once for the full range
 
 var saveTrace=[];   // key/label for all traces, ie. GPCRUSC20161012EXP2_2_SIGNAL01
 var saveTracking=[];// state of traces being shown (true/false)
@@ -202,7 +201,7 @@ function processForPlotting(blob) {
 // XXX something to look into, all traces are now assume
 // to be of same elapsed time.. ie. 3000 data points, 
 // 
-function getNormRange(count, baseClicks) {
+function getRangeIndex(count, baseClicks) {
   first=baseClicks[0];
   next=baseClicks[1];
   var s1=toIndex(count,first);
@@ -468,7 +467,7 @@ function updateNormalizedLineChart() {
 
 function reprocessForNormalize() {
     var cnt=saveY.length;
-    var range=getNormRange(saveY[saveStandard].length, trackSliderClicks);
+    var range=getRangeIndex(saveY[saveStandard].length, trackSliderClicks);
     makeMarkersOnSlider(range);
 //window.console.log("making markers on slider..");
     
@@ -479,24 +478,31 @@ function reprocessForNormalize() {
 //window.console.log("ratio's idx is ..", ratioIdx[0], " and ", ratioIdx[1]);
 //window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
 //" and ", toMinutes(saveY[saveStandard], ratioIdx[1]));
+
+// normalize everything Y traces
     for(var i=0;i<cnt;i++) {
       saveYnorm[i]=normalizeWithRange(saveY[i], saveY[i].slice(range[0],range[1]));
-//      saveYnorm[i]=normalizeWithRange(saveY[i], saveY[saveStandard].slice(range[0],range[1]));
-//        if(qualityFirst) {
-//Mike said the Q ratio is based on normized Y values
-          var _y=saveYnorm[i];
-          var Y1=_y[ratioIdx[0]]
-          var Y2=_y[ratioIdx[1]];
-          var _yy=saveY[i];
-          var YY1=_yy[ratioIdx[0]]
-          var YY2=_yy[ratioIdx[1]];
-          var _m= Math.round((Y2/Y1)*1000)/1000;
-          var _mm= Math.round((YY2/YY1)*1000)/1000;
-          qualityY[i]= _m + "("+_mm+")";
-//window.console.log("qualitY for ",i, " is ", qualityY[i]);
-//        }
     }
-//    qualityFirst=false;
+// use dynamic selected range
+    var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
+// make it full range 
+//   var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], [0, saveY[saveStandard].length]);
+window.console.log("ratio's idx is ..", ratioIdx[0], " and ", ratioIdx[1]);
+window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
+" and ", toMinutes(saveY[saveStandard], ratioIdx[1]));
+//Mike said the Q ratio is based on normized Y values
+    for(var i=0;i<cnt;i++) {
+      var _y=saveYnorm[i];
+      var Y1=_y[ratioIdx[0]]
+      var Y2=_y[ratioIdx[1]];
+      var _yy=saveY[i];
+      var YY1=_yy[ratioIdx[0]]
+      var YY2=_yy[ratioIdx[1]];
+      var _m= Math.round((Y2/Y1)*100)/100;
+      var _mm= Math.round((YY2/YY1)*100)/100;
+      qualityY[i]= _m + "("+_mm+")";
+//window.console.log("qualitY for ",i, " is ", qualityY[i]);
+    }
 }
 
 // if saveBaseIdx is set, then smooth by the supplied trace
@@ -513,7 +519,7 @@ function updateWithBaseLineChart() {
   
 function reprocessForBase() {
   var cnt=saveY.length;
-  var range=getNormRange(saveY[saveStandard].length, trackSliderClicks);
+  var range=getRangeIndex(saveY[saveStandard].length, trackSliderClicks);
   makeMarkersOnSlider(range);
   for(var i=0;i<cnt;i++) {
     var s=saveY[i];
@@ -585,6 +591,7 @@ function removeOverlayArea(aPlot)
 function calcTrackRatioIdx(targetY, nrange) {
   var cnt=targetY.length;
   var delta=toIndex(cnt, QRatioOffset);
+// XXX this is based on the regular Y trace instead of normalized trace
   var irange=getIndexMinMax(saveY[saveStandard].slice(nrange[0], nrange[1]));
   var maxIdx=irange[1]+nrange[0];
   var nextIdx=maxIdx - delta;

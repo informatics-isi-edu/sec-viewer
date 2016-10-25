@@ -223,6 +223,8 @@ def process_for_data(target,dataloc,qlist) :
             blist[key]=slist
             s.write(json.dumps(blist))
             s.close()
+
+## this is for making _m.csv QRatio statistics 
 ## use itself if there is no standard 
             if len(qlist) == 0:
               qlist=process_for_standard([ os.path.join(dir,file) ])
