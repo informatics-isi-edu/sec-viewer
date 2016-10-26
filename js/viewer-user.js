@@ -78,6 +78,11 @@ function isAbsorbance() {
 }
 
 function legendKey(trace,dataIdx) {
+  var v=saveYLabel[dataIdx];
+  if (v != undefined) {
+    window.console.log(v);
+    return v;
+  }
   var name="Sample";
   if(isFluorescence()) {
     if(dataIdx != -1) name=name+dataIdx+"_fluorescence";

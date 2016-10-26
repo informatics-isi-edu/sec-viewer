@@ -14,6 +14,7 @@
 //     detectorName="MWD1 E,  Sig=280,4  Ref= 360,4"&
 //     plotTitle="IMPT6750_NTX_E2"&
 //     plotUnit=RFU 
+//     urlLabel_2="sample0_UV"
 //
 // regionStart, regionEnd are in minutes
 //   if there are more than one standard, then regionStart and regionEnd is
@@ -139,7 +140,8 @@ function processArgs(args) {
              {
 // trim " from the head and tail
              var str=kvp[1];
-             if(str[0] == "\"" && str[ str.length-1 ] == "\"")
+             if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
+               || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
                str=str.substr(1,str.length-2);
              saveDetectorName=str;
              break;
@@ -148,7 +150,8 @@ function processArgs(args) {
              {
 // trim " from the head and tail
              var str=kvp[1];
-             if(str[0] == "\"" && str[ str.length-1 ] == "\"")
+             if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
+               || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
                str=str.substr(1,str.length-2);
              savePlotTitle=str;
              break;
@@ -157,15 +160,28 @@ function processArgs(args) {
              {
 // trim " from the head and tail
              var str=kvp[1];
-             if(str[0] == "\"" && str[ str.length-1 ] == "\"")
+             if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
+               || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
                str=str.substr(1,str.length-2);
              savePlotUnit=str;
              break;
              }
+          case 'urlLabel':
           default:
              {
              var _utype=kvp[0].trim();
-             alertify.error("Error: Unable to handle param type, "+_utype);
+             var str=kvp[1];
+// special handling for urlLabel_N
+             if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
+               || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
+               str=str.substr(1,str.length-2);
+
+             if(_utype.indexOf('urlLabel_')==0) {
+               saveUrlLabel(_utype, str);
+               } else {
+                 alertify.error("Error: Unable to handle param type, "+_utype);
+             }
+             break;
              }
        }
     }

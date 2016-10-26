@@ -6,6 +6,7 @@ var savePlot=null;  // point to the viewer node
 var saveSliderPlot=null;  // point to the viewer node
 
 var saveY=[];       // Ys values of all input traces
+var saveYLabel={};  // dictionary of Y labels "1":'sample0_fluorescence'
 
 var smoothedY=false;
 var saveYsmooth=[];   // smoothed Ys value to experiment base signal, calculated 
@@ -200,6 +201,14 @@ function processForPlotting(blob) {
 
 }
 
+// urlLabel_1
+function saveUrlLabel(alabel,val) {
+  var l=alabel.split("_");
+  var i=parseInt(l[1]);
+  if(i>0) i=i-1;
+  saveYLabel[i]=val;
+}
+
 // XXX something to look into, all traces are now assume
 // to be of same elapsed time.. ie. 3000 data points, 
 // 
@@ -351,13 +360,13 @@ function getLinesAt(x,y,trace,color) {
 // if data or current standard index 
     var isDataIdx=saveDataIdx.indexOf(i);
     if (isDataIdx != -1 || i == saveStandard ) { 
-      one= makeOne(x[i],y[i],trace[i],color[i], isDataIdx);
+      one= makeOne(x[i],y[i],trace[i],color[i], i);
 /** suppress showing of d.Q ratio
       if(showNormalize) { // include qualityY value on the hover 
         var text="d.Q Ratio: "+qualityY[i];
-        one= makeOneWithText(x[i],y[i],trace[i],color[i],text, isDataIdx);
+        one= makeOneWithText(x[i],y[i],trace[i],color[i],text, i);
         } else {
-          one= makeOne(x[i],y[i],trace[i],color[i], isDataIdx);
+          one= makeOne(x[i],y[i],trace[i],color[i], i);
       }
 **/
 // the current standard index
