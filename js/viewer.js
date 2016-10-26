@@ -105,21 +105,21 @@ function processArgs(args) {
              }
           case 'regionStart':
              {
-             var t=parseInt(kvp[1]);
+             var t=parseFloat(kvp[1]);
              if(!isNaN(t))
                saveRegionStart=t;
              break;
              }
           case 'regionEnd':
              {
-             var t=parseInt(kvp[1]);
+             var t=parseFloat(kvp[1]);
              if(!isNaN(t))
                saveRegionEnd=t;
              break;
              }
           case 'base':
              {
-             var t=parseInt(kvp[1]);
+             var t=parse(kvp[1]);
              if(!isNaN(t))
                saveBase=(t==-1)?t:t-1;
              break;

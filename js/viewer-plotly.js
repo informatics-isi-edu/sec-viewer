@@ -408,7 +408,7 @@ function getSliderDefaultLayout(subRange, fullRange ){
 
 function getLinesDefaultLayout(title,ylabel){
   var tmp;
-  if(showNormalize==true)
+  if(showNormalize || smoothBase)
      tmp={ title: ylabel+" (Normalized)",
            range:[saveNormYmin,saveNormYmax] };
      else  
@@ -512,10 +512,16 @@ window.console.log("qualitY for ",i, " is ", qualityY[i]);
 
 // if saveBaseIdx is set, then smooth by the supplied trace
 //    else smooth by the min-of-range of the trace
+// because can not reset the slide tracer's range by api,
+// so just redraw the whole slider plot
 function updateWithBaseLineChart() {
-  trackSliderClicks=getSliderState();
+//  trackSliderClicks=getSliderState();
   if(smoothBase) {
-    reprocessForBase();
+    updateSliderPlot()
+    var isz=saveY[saveStandard].length;
+    var maxT=toMinutes(saveY[saveStandard],isz-1);
+    trackSliderClicks=[0, maxT];
+    updateSliderPlot();
     } else {
       removeAnnotations(saveSliderPlot);
   }
@@ -523,19 +529,27 @@ function updateWithBaseLineChart() {
 }
   
 function reprocessForBase() {
-  var cnt=saveY.length;
   var range=getRangeIndex(saveY[saveStandard].length, trackSliderClicks);
   makeMarkersOnSlider(range);
+  var cnt=saveY.length;
   for(var i=0;i<cnt;i++) {
     var s=saveY[i];
     if(hasBase()) { 
       s=normalizeWithBaseline(saveY[i], saveY[saveBaseIdx]);
       } else {
-//??? should always use the whole range
-//        s=normalizeWithBaseMin(saveY[i], saveY[i].slice(range[0],range[1]));
+//should always use the whole range
         s=normalizeWithBaseMin(saveY[i], saveY[i]);
     }
     saveYsmooth[i]=s;
+    var _max=Math.max.apply(Math,saveYsmooth[i]);
+    var _min=Math.min.apply(Math,saveYsmooth[i]);
+    if(i==0) {
+      saveNormYmax=_max;
+      saveNormYmin=_min;
+      } else {
+         if(_max > saveNormYmax) saveNormYmax=_max;
+         if(_min < saveNormYmin) saveNormYmin=_min;
+    }
   }
 }
 
