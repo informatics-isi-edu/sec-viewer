@@ -8,11 +8,12 @@
 //  http://localhost/plotly/view.html?
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E1-1_020216-SIGNAL01.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL01.json&
-//     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL02.json&
+//     url=http://localhost/data/plotly/IMPT6750_NTX_E2-4_020216-SIGNAL01.json&
 //     regionStart=5&regionEnd=9&base=3&standard=1&
 //     standard=1&
-//     detectorName="MWD1 E,  Sig=280,4  Ref= 360,4"
-//     
+//     detectorName="MWD1 E,  Sig=280,4  Ref= 360,4"&
+//     plotTitle="IMPT6750_NTX_E2"&
+//     plotUnit=RFU 
 //
 // regionStart, regionEnd are in minutes
 //   if there are more than one standard, then regionStart and regionEnd is
@@ -38,6 +39,8 @@ var saveURLs=[];
 var saveRegionStart=-1;
 var saveRegionEnd=-1;
 var saveDetectorName=null;
+var savePlotUnit=null;
+var savePlotTitle=null;
 
 
 // this is minmax normalization
@@ -139,6 +142,24 @@ function processArgs(args) {
              if(str[0] == "\"" && str[ str.length-1 ] == "\"")
                str=str.substr(1,str.length-2);
              saveDetectorName=str;
+             break;
+             }
+          case 'plotTitle':
+             {
+// trim " from the head and tail
+             var str=kvp[1];
+             if(str[0] == "\"" && str[ str.length-1 ] == "\"")
+               str=str.substr(1,str.length-2);
+             savePlotTitle=str;
+             break;
+             }
+          case 'plotUnit':
+             {
+// trim " from the head and tail
+             var str=kvp[1];
+             if(str[0] == "\"" && str[ str.length-1 ] == "\"")
+               str=str.substr(1,str.length-2);
+             savePlotUnit=str;
              break;
              }
           default:

@@ -351,12 +351,15 @@ function getLinesAt(x,y,trace,color) {
 // if data or current standard index 
     var isDataIdx=saveDataIdx.indexOf(i);
     if (isDataIdx != -1 || i == saveStandard ) { 
+      one= makeOne(x[i],y[i],trace[i],color[i], isDataIdx);
+/** suppress showing of d.Q ratio
       if(showNormalize) { // include qualityY value on the hover 
         var text="d.Q Ratio: "+qualityY[i];
         one= makeOneWithText(x[i],y[i],trace[i],color[i],text, isDataIdx);
         } else {
           one= makeOne(x[i],y[i],trace[i],color[i], isDataIdx);
       }
+**/
 // the current standard index
       if(i == saveStandard) {
 // make it dashed lines

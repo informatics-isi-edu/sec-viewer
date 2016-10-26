@@ -106,6 +106,9 @@ window.console.log("pickATarget..", _keys[i]);
 
 // test1.json
 function plotTitle() {
+  if(savePlotTitle) {
+    return savePlotTitle;
+  }
   var key=pickATarget();
   var name=key;
   var j = name.indexOf(".json");
@@ -117,11 +120,14 @@ function plotTitle() {
     name=name.substring(0,s);
   }
   name=name+ " (" +saveDetectorName+ ")";
-  window.console.log(name);
+window.console.log(name);
   return name;
 }
 
 function plotYlabel() {
+  if(savePlotUnit) {
+    return savePlotUnit;
+  }
   var ylabel;
   if(isFluorescence()) {
     ylabel="mAu";
