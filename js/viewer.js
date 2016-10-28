@@ -10,7 +10,6 @@
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-3_020216-SIGNAL01.json&
 //     url=http://localhost/data/plotly/IMPT6750_NTX_E2-4_020216-SIGNAL01.json&
 //     regionStart=5&regionEnd=9&base=3&standard=1&
-//     standard=1&
 //     detectorName="MWD1 E,  Sig=280,4  Ref= 360,4"&
 //     plotTitle="IMPT6750_NTX_E2"&
 //     plotUnit=RFU 

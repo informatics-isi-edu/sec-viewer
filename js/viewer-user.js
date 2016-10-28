@@ -4,41 +4,18 @@
 // This is very user/dataset specific information
 // for, USC
 /*
-
 usc's signal2
-GPCRUSC20161012EXP2_2 (MWD1 E  Sig= 280  Ref= 360) -- fluorescence
-
+GPCRUSC20161012EXP2_2 (MWD1 E  Sig= 280  Ref= 360) -- absorbance
 and
-
 usc's signal1
 GPCRUSC20161012EXP2_2 (MWD1 B  Sig= 280  Ref= off) -- absorbance
-
- and the legend is     Sample_fluorescence
+ and the legend is     Sample_absorbance
          and           Sample_absorbance
- 
  and the legend is     Standard
-for the standard trace
-
+    for the standard trace
 and the y label is mAu for absorbance
             and    RFU for fluorescence
-
 with (Normalized) attached if it got normalized..
------
-
-Top Plot:
-title:  Sample SEC data
-y-axis:  mAu —> if signal 1
-y-axis: RFU —> if signal 2
-y-axis:  Normalized signal —> if min/max normalization employed (true for both signals)
-Middle Plot:
-I don’t think we need it
-bottom plot:
-Increase size of Y (double) and use to define range.  no title necessary
-minimax —> Normalize Y
-baseline —> Zero Y
-Legend:
-Change sample trace (red) to Sample_(sample#) UV (or fluorescence depending on signal)
-Change standard trace (black dash) to Standard_concentration  UV (or fluorescence depending on signal)
 */
 
 // shortname to be use to display on the plot and on select
@@ -57,8 +34,9 @@ return name;
 
 function isFluorescence() {
   var dname=saveDetectorName;
-  if(dname.length==0) {
-    alertify.error("PANIC, missing DetectorName");
+  if(dname==null) {
+    window.console.log("WARN, missing DetectorName");
+    return 0;
   }
   var yes=dname.indexOf("FLD");
   if(yes != -1)
@@ -68,10 +46,11 @@ function isFluorescence() {
 
 function isAbsorbance() {
   var dname=saveDetectorName;
-  if(dname.length > 0) {
-    alertify.error("PANIC, missing DetectorName");
+  if(dname==null) {
+    window.console.log("WARN, missing DetectorName");
+    return 0;
   }
-  var yes=key.indexOf("MWD");
+  var yes=dname.indexOf("MWD");
   if(yes > 0)
     return 1;
     else return 0;

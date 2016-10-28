@@ -132,15 +132,14 @@ function processForPlotting(blob) {
 
      saveTrace.push(k);
      saveY.push(_y);
-
      saveTracking.push(true); //
 
-     //if in is in saveStandardIdx, 
+     //if in is in saveStandardIdx,
      if (saveStandardIdx.indexOf(i) != -1) {
        saveColor.push('#000000'); // push black one for standard
        saveStandardTrace.push(k);
        } else {
-// This is because there is just 1 target
+    // This is because there is just 1 target
          if(firstColor) {
            saveColor.push('#DD0202'); // the default red
            firstColor=false;
@@ -193,11 +192,20 @@ function processForPlotting(blob) {
      saveRegionEnd=t;
    }
    trackSliderClicks=[saveRegionStart, saveRegionEnd ];
-   if(saveDetectorName==null) {
-     saveDetectorName=setDefaultDetectorName();
-   }
-
    saveStandard=saveStandardIdx[0];
+
+   if(cnt == 1) { // SPECIAL case, make it both standard and data
+       var k=saveTrace[0];
+       var _y=saveY[0];
+       saveTrace.push(k);
+       saveY.push(_y);
+       saveTracking.push(true); //
+       saveStandardTrace.push(k);
+       saveColor.push('#DD0202'); // the default red
+       saveDataTrace.push(k)
+       saveDataIdx.push(1);
+       saveX.push(_x);
+   } 
 
 }
 
@@ -498,6 +506,7 @@ function reprocessForNormalize() {
            if(_min < saveNormYmin) saveNormYmin=_min;
       }
     }
+/****
 // use dynamic selected range
     var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
 // make it full range 
@@ -513,13 +522,12 @@ window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
       var _yy=saveY[i];
       var YY1=_yy[ratioIdx[0]]
       var YY2=_yy[ratioIdx[1]];
-window.console.log("for Y2 ",Y2,", YY2 ",YY2);
-window.console.log("for Y1 ",Y1,", YY1 ",YY1);
       var _m= Math.round((Y2/Y1)*100)/100;
       var _mm= Math.round((YY2/YY1)*100)/100;
       qualityY[i]= _m + "("+_mm+")";
 window.console.log("qualitY for ",i, " is ", qualityY[i]);
     }
+***/
 }
 
 // if saveBaseIdx is set, then smooth by the supplied trace
