@@ -60,7 +60,7 @@ function isFluorescence() {
   if(dname.length==0) {
     alertify.error("PANIC, missing DetectorName");
   }
-  var yes=dname.indexOf("MWD1 E");
+  var yes=dname.indexOf("FLD");
   if(yes != -1)
     return 1;
     else return 0;
@@ -71,7 +71,7 @@ function isAbsorbance() {
   if(dname.length > 0) {
     alertify.error("PANIC, missing DetectorName");
   }
-  var yes=key.indexOf("MWD1 B");
+  var yes=key.indexOf("MWD");
   if(yes > 0)
     return 1;
     else return 0;
@@ -135,9 +135,9 @@ function plotYlabel() {
   }
   var ylabel;
   if(isFluorescence()) {
-    ylabel="mAu";
+    ylabel="RFU";
     } else {
-      ylabel="RFU";
+      ylabel="mAU";
   }
   return ylabel;
 }
