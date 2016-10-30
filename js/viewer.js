@@ -51,7 +51,11 @@ function toggleNormalize() {
       toggleBase();
     }
     nBtn.style.color='red';
+    document.getElementById('resetBtn').style.display='';
+    document.getElementById('againBtn').style.display='';
     } else {
+      document.getElementById('resetBtn').style.display='none';
+      document.getElementById('againBtn').style.display='none';
       nBtn.style.color='white';
   }
   showNormalize = ! showNormalize;

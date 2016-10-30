@@ -474,15 +474,11 @@ function getAPlot(divname) {
 // remake the normalized data set..
 function updateNormalizedLineChart() { 
   trackSliderClicks=getSliderState();
-  var normDiv= document.getElementById('normalizeDiv');
   // reprocess normalizedYs
-
   if(showNormalize) { // refresh the normalized Y 
     reprocessForNormalize();
-    normDiv.style.display='';
     } else {
       removeAnnotations(saveSliderPlot);
-      normDiv.style.display='none';
   }
   updateLineChart();
 }
