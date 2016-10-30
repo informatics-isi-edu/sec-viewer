@@ -30,7 +30,7 @@ function setupUI() {
 
 function setupStandardList(idx,keys) {
   var list = document.getElementById('standardList');
-//window.console.log("keys length..", keys.length);
+window.console.log("keys length..", keys.length);
   if(keys.length > 1) {
     if(list) {
       var _plist = '<option selected="selected" value="' + idx[0] + '">' + keys[0]  + '</option>';
