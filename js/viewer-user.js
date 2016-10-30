@@ -22,13 +22,13 @@ with (Normalized) attached if it got normalized..
 //IMPT6620_NTX_E2-3_012216-SIGNAL01
 //^^^^^^^^^^^^^^^^^ sample name
 function trimKey(key) {
-window.console.log(key);
+//window.console.log(key);
 var one = key.indexOf("_SIGNAL01"); 
 var two = key.indexOf("_SIGNAL02"); 
 var s = key.indexOf("_SIGNAL"); 
 
 var name=key.substring(0,s);
-window.console.log(name)
+//window.console.log(name)
 return name;
 }
 
@@ -59,7 +59,6 @@ function isAbsorbance() {
 function legendKey(trace,dataIdx) {
   var v=saveYLabel[dataIdx];
   if (v != undefined) {
-    window.console.log(v);
     return v;
   }
   var name="Sample";
@@ -80,7 +79,7 @@ function pickATarget() {
   var _keys=saveDataTrace;
   for(var i=0; i< _idx.length; i++) {
     if(_idx[i] != saveBaseIdx) {
-window.console.log("pickATarget..", _keys[i]);
+//window.console.log("pickATarget..", _keys[i]);
        return _keys[i];
     }
   }
@@ -104,7 +103,7 @@ function plotTitle() {
     name=name.substring(0,s);
   }
   name=name+ " (" +saveDetectorName+ ")";
-window.console.log(name);
+//window.console.log(name);
   return name;
 }
 

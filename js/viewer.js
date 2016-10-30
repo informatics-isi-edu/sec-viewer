@@ -45,33 +45,31 @@ var savePlotTitle=null;
 
 // this is minmax normalization
 function toggleNormalize() {
-  showNormalize = ! showNormalize;
   var nBtn = document.getElementById('normalizeBtn');
-  var bBtn = document.getElementById('baseBtn');
-  if(showNormalize) {
-    if(bBtn) bBtn.disabled=true;
-    document.getElementById('resetBtn').disabled=false;
-    document.getElementById('againBtn').disabled=false;
+  if(!showNormalize) {
+    if(smoothBase) {
+      toggleBase();
+    }
     nBtn.style.color='red';
     } else {
-      if(bBtn) bBtn.disabled=false;
       nBtn.style.color='white';
   }
+  showNormalize = ! showNormalize;
   updateNormalizedLineChart();
 }
-
+  
 // normalize to the base signal
 function toggleBase() {
-  smoothBase = ! smoothBase;
   var bBtn = document.getElementById('baseBtn');
-  var nBtn = document.getElementById('normalizeBtn');
-  if(smoothBase) {
-      nBtn.disabled=true;
-      bBtn.style.color='red';
+  if(!smoothBase) {
+    if(showNormalize) {
+      toggleNormalize();
+    }
+    bBtn.style.color='red';
     } else {
-      nBtn.disabled=false;
       bBtn.style.color='white';
   }
+  smoothBase = ! smoothBase;
   updateWithBaseLineChart();
 }
 

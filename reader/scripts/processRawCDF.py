@@ -348,6 +348,8 @@ def explode_attribute(inputgrp, mlist, f):
 
 
 def process_for_file(dir,file):
+    pdb.set_trace()
+    print os.path.join(dir,file)
     inputgrp = Dataset(os.path.join(dir,file), 'r')
     mlist={}
 #    print "====="

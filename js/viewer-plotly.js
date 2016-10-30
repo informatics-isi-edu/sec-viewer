@@ -280,7 +280,7 @@ function updateLineChart() {
   }
   savePlot=makeLinePlot(_x, _y,_keys,_colors);
   if(showNormalize || smoothBase) {
-    addOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveYmin, saveYmax);
+    addOverlayArea(savePlot, trackSliderClicks[0], trackSliderClicks[1], saveNormYmin, saveNormYmax);
   }
 }
 
@@ -582,7 +582,6 @@ function getSliderState() {
 
 function addOverlayArea(aPlot, xstart, xend, ystart, yend)
 {
-//window.console.log("addOverlay..",xstart, " ends..", xend);
   var _s = { type: 'rect',
              xref: 'x',
              yref: 'y',

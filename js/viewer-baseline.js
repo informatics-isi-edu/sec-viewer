@@ -31,7 +31,7 @@ function normalizeWithBaseMin(y, minmaxbase) {
   var cnt=y.length;
   var t;
   var ymin=Math.min.apply(Math,minmaxbase);
-window.console.log("normalizeWithBaseMin, shift by y..",ymin);
+//window.console.log("normalizeWithBaseMin, shift by y..",ymin);
   for(var i=0;i<cnt;i++) {
     t=(y[i]-ymin);
     n.push(t)
