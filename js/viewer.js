@@ -45,18 +45,15 @@ var savePlotTitle=null;
 
 // this is minmax normalization
 function toggleNormalize() {
-  var nBtn = document.getElementById('normalizeBtn');
   if(!showNormalize) {
     if(smoothBase) {
       toggleBase();
     }
-    nBtn.style.color='red';
     document.getElementById('resetBtn').style.display='';
     document.getElementById('againBtn').style.display='';
     } else {
       document.getElementById('resetBtn').style.display='none';
       document.getElementById('againBtn').style.display='none';
-      nBtn.style.color='white';
   }
   showNormalize = ! showNormalize;
   updateNormalizedLineChart();
@@ -64,14 +61,10 @@ function toggleNormalize() {
   
 // normalize to the base signal
 function toggleBase() {
-  var bBtn = document.getElementById('baseBtn');
   if(!smoothBase) {
     if(showNormalize) {
       toggleNormalize();
     }
-    bBtn.style.color='red';
-    } else {
-      bBtn.style.color='white';
   }
   smoothBase = ! smoothBase;
   updateWithBaseLineChart();
@@ -243,6 +236,9 @@ jQuery(document).ready(function() {
 $('#standardList').select2({theme:"classic"});
 $('#standardList').select2({dropdownAutoWidth : true});
 
+$('#normalizationList').select2({theme:"classic"});
+$('#normalizationList').select2({dropdownAutoWidth : true});
+
   var args=document.location.href.split('?');
   if (args.length ==2) {
     var cnt=processArgs(args);
@@ -273,6 +269,29 @@ $('#standardList').select2({dropdownAutoWidth : true});
       alertify.error("Usage: view.html?http://datapath/data.json");
       return;
   }
+
+  $('#normalizationList').change(function() {
+    var ntype = document.getElementById("normalizationList").value;
+    var itype=parseInt(ntype);
+    switch(itype) {
+      case NORM_NONE: {
+                      if(showNormalize)
+                        toggleNormalize();
+                      if(smoothBase)
+                        toggleBase();
+                      break;
+                      }
+      case NORM_MINMAX: {          
+                        toggleNormalize();
+                        break;
+                        }
+      case NORM_ZERO: {
+                      toggleBase(); 
+                      break;
+                      }
+      default: { }
+   }
+  });
 
   $('#standardList').change(function() {
     var standard = document.getElementById("standardList").value;

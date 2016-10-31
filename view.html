@@ -38,21 +38,21 @@
 <body>
 <div id='viewerBlock' style='width:100%;'>
    <div id='myViewer'></div>
-   <div id='mySliderViewer' style='margin-top:10px;'></div>
+
+   <div id="normalizationSelect" class="control-line row" style='margin-left:50px; margin-top:20px;'>
+     <div class="col-md-8 col-xs-8">
+       <label for="normalizationList">Select a Normalization</label>
+       <select required id="normalizationList" class="select-input normalizationList-select2"></select>
+     </div>
+   </div>
+   <div id='mySliderViewer'></div>
+
+<div class="row" style='margin-left:50px'>
+   <div class="col-md-8 col-xs-8 no-padding">
+       <button id="resetBtn" type="button" style='display:none; float:right' class="btn btn-primary" onclick="resetSlider()">Reset to default range</button>
+       <button id="againBtn" type="button" style='display:none; float:right;margin-right:10px' class="btn btn-primary" onclick="minmaxAgain()">rerun</button>
+   </div>
 </div>
-<div id='controlBlock' style='width:100%; margin-left:50px;'>
-   <div class="row" style='margin:4px'>
-     <div class="col-md-3 col-xs-3 no-padding">
-       <button id="normalizeBtn" type="button" class="btn btn-primary" onclick="toggleNormalize()">Normalize Y</button>
-       <button id="againBtn" type="button" style='margin-left:10px;display:none' class="btn btn-primary" onclick="minmaxAgain()">rerun</button>
-       <button id="resetBtn" type="button" style='display:none' class="btn btn-primary" onclick="resetSlider()">reset</button>
-     </div>
-   </div>
-   <div class="row" style='margin:4px'>
-     <div class="col-md-1 col-xs-1 no-padding">
-      <button id="baseBtn" type="button" class="btn btn-primary" onclick="toggleBase()">Zero Y</button>
-     </div>
-   </div>
    <div id="standardSelect" class="control-line row" style='margin:4px;display:none'>
      <div class="col-md-6 col-xs-6 no-padding">
        <label for="standardList">Select a Standard</label>

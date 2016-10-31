@@ -3,6 +3,9 @@
 //
 // A flag to track whether viewer is
 // being used inside another window (i.e. Chaise), set enableEmbedded.
+var NORM_NONE=0;
+var NORM_MINMAX=1;
+var NORM_ZERO=2;
 
 var enableEmbedded = false;
 if (window.self !== window.top) {
@@ -22,16 +25,25 @@ function getKeys(blob) {
 }
 
 function setupUI() {
-  var bElm = document.getElementById('controlBlock');
-  if(bElm) {
-    setupStandardList(saveStandardIdx, saveStandardTrace);
- }
+  setupNormalizationList();
+// setupStandardList(saveStandardIdx, saveStandardTrace);
+}
+
+function setupNormalizationList() {
+  var list = document.getElementById('normalizationList');
+  if(list) {
+      var _plist = '<option selected="selected" value=' + NORM_NONE + '>None</option>';
+      _plist += '<option value=' + NORM_MINMAX + '>Normalize Y</option>';
+      _plist += '<option value=' + NORM_ZERO + '>Zero Y</option>';
+      list.innerHTML=_plist;
+      $('#normalizationList').val(NORM_NONE).trigger('change');
+  }
 }
 
 function setupStandardList(idx,keys) {
   var list = document.getElementById('standardList');
 window.console.log("keys length..", keys.length);
-  if(keys.length > 1) {
+  if(keys.length > 0) {
     if(list) {
       var _plist = '<option selected="selected" value="' + idx[0] + '">' + keys[0]  + '</option>';
       for(var i=1; i<keys.length; i++) {

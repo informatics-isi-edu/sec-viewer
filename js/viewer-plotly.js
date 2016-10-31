@@ -302,6 +302,13 @@ function makeSliderPlot() {
   var _data2=getSliderAt(saveX[saveStandard], saveY[saveStandard],saveTrace[saveStandard],'rgb(0,0,0)');
   var _layout2=getSliderDefaultLayout(trackSliderClicks, [saveXmin, saveXmax]);
   var plot=addAPlot('#mySliderViewer',_data2, _layout2,600,400, {displayModeBar: false});
+
+plot.on('plotly_click', function(data){
+var _data=data;
+window.console.log("in plotly_click..");
+
+});
+
   return plot;
 }
 
