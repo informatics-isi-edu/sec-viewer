@@ -24,6 +24,8 @@ var saveTrace=[];   // key/label for all traces, ie. GPCRUSC20161012EXP2_2_SIGNA
 var saveTracking=[];// state of traces being shown (true/false)
 var saveColor=[];
 
+var DEBUG_QRATIO=0;
+
 // in a list of urls being passed, it is always assumed that the
 // first url is the 'standard' signal per device per site
 // 2nd url is the 'base/noise' of the experiment 
@@ -376,14 +378,16 @@ function getLinesAt(x,y,trace,color) {
     var isDataIdx=saveDataIdx.indexOf(i);
     if (isDataIdx != -1 || i == saveStandard ) { 
       one= makeOne(x[i],y[i],trace[i],color[i], i);
-/** suppress showing of d.Q ratio
+/* suppress showing of d.Q ratio QQQ*/
+if(DEBUG_QRATIO) {
       if(showNormalize) { // include qualityY value on the hover 
         var text="d.Q Ratio: "+qualityY[i];
         one= makeOneWithText(x[i],y[i],trace[i],color[i],text, i);
         } else {
           one= makeOne(x[i],y[i],trace[i],color[i], i);
       }
-**/
+}
+/*QQQ*/
 // the current standard index
       if(i == saveStandard) {
 // make it dashed lines
@@ -509,7 +513,8 @@ function reprocessForNormalize() {
            if(_min < saveNormYmin) saveNormYmin=_min;
       }
     }
-/****
+/*QQQ*/
+if(DEBUG_QRATIO) {
 // use dynamic selected range
     var ratioIdx=calcTrackRatioIdx(saveY[saveStandard], range);
 // make it full range 
@@ -529,8 +534,10 @@ window.console.log("time used ..", toMinutes(saveY[saveStandard], ratioIdx[0]),
       var _mm= Math.round((YY2/YY1)*100)/100;
       qualityY[i]= _m + "("+_mm+")";
 window.console.log("qualitY for ",i, " is ", qualityY[i]);
+window.console.log("Y1 ",Y1, "Y2 ",Y2);
     }
-***/
+}
+/*QQQ*/
 }
 
 // if saveBaseIdx is set, then smooth by the supplied trace
