@@ -42,7 +42,6 @@ var saveDetectorName=null;
 var savePlotUnit=null;
 var savePlotTitle=null;
 
-
 // this is minmax normalization
 function toggleNormalize() {
   if(!showNormalize) {
@@ -50,10 +49,8 @@ function toggleNormalize() {
       toggleBase();
     }
     document.getElementById('resetBtn').style.display='';
-    document.getElementById('againBtn').style.display='';
     } else {
       document.getElementById('resetBtn').style.display='none';
-      document.getElementById('againBtn').style.display='none';
   }
   showNormalize = ! showNormalize;
   updateNormalizedLineChart();
@@ -72,6 +69,7 @@ function toggleBase() {
 
 function minmaxAgain() {
   updateNormalizedLineChart();
+
 }
 
 function resetSlider() {
@@ -300,27 +298,21 @@ $('#normalizationList').select2({dropdownAutoWidth : true});
     updateEverything();
   });
 
+
+$('#mySliderViewer').on('plotly_relayout', function(event, arguments){
+  var _arg=arguments;
+  var _keys = Object.keys(_arg);
+  var _str=_keys[0];
+window.console.log("mySliderViewer, relayout for ..",_str);
+  if( _str == "xaxis.range") {
+    if(showNormalize) {
+      minmaxAgain();
+    }
+  }
+});
+
   if(!enableEmbedded) {
     displayInitPlot();
   }
 })
 
-
-
-/************** standalone test control ***********************/
-function saveSEC(fname) {
-}
-
-function loadSEC(fname) {
-}
-
-var isDummy=true;
-function dummyClick() {
-   isDummy = !isDummy;
-   var dtog = document.getElementById('dummy-toggle');
-   if(isDummy) {
-      dtog.style.color='blue';
-      } else {
-        dtog.style.color='black';
-   }
-}

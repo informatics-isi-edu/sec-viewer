@@ -25,6 +25,8 @@ var saveTracking=[];// state of traces being shown (true/false)
 var saveColor=[];
 
 var DEBUG_QRATIO=0;
+var dragCount=0;
+var showNormalizePause=false;
 
 // in a list of urls being passed, it is always assumed that the
 // first url is the 'standard' signal per device per site
@@ -259,6 +261,7 @@ function addLineChart() {
 }
 
 function updateLineChart() {
+//window.console.log("calling updateLIneChart..");
   $('#myViewer').empty();
   var cnt=saveTracking.length; 
   var _y=[];
@@ -301,15 +304,10 @@ function makeLinePlot(x,y,keys,colors) {
 }
 
 function makeSliderPlot() {
+window.console.log('calling makeSliderPlot..');
   var _data2=getSliderAt(saveX[saveStandard], saveY[saveStandard],saveTrace[saveStandard],'rgb(0,0,0)');
   var _layout2=getSliderDefaultLayout(trackSliderClicks, [saveXmin, saveXmax]);
   var plot=addAPlot('#mySliderViewer',_data2, _layout2,600,400, {displayModeBar: false});
-
-plot.on('plotly_click', function(data){
-var _data=data;
-window.console.log("in plotly_click..");
-
-});
 
   return plot;
 }
