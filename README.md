@@ -56,6 +56,8 @@ view.html?
 
 ```
 
+Plot multiple signal with sample parameters
+
 ```
 plotly/view.html?
   url=http://localhost/data/plotly/IMPT6750_NTX_E1-1_020216-SIGNAL01.json&
