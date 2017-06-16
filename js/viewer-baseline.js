@@ -4,6 +4,9 @@
 // support routines for normalizing y with baseline
 // managing the baselines per y trace
 // 
+// TODO,  
+//   spec has not been clarified and so to be continue..
+//
 // for each trace in saveY, needs a structure to manage
 // baselines segments,
 //   the segment can be default segment extracted from the
@@ -16,14 +19,13 @@
 // var saveY=[];       // Ys values
 var baseForY=[];  // should be pairs of baseStart, baseEnd
 
-function processXX() {
+function processBASELINE() { // TODO 
 
 baseForY.push(baseList);
 // 'file','viewer'
 // 'min-max', 'peak-only', 'zero-target'
 base={'start':start_time, 'stop':stop_time, 'src':'file', type:'zero-target' };
 baseline.push(base);
-
 }
 
 function normalizeWithBaseMin(y, minmaxbase) {

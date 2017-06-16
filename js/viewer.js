@@ -115,7 +115,7 @@ function processArgs(args) {
              }
           case 'base':
              {
-             var t=parse(kvp[1]);
+             var t=parseInt(kvp[1]);
              if(!isNaN(t))
                saveBase=(t==-1)?t:t-1;
              break;
