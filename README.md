@@ -71,3 +71,5 @@ plotly/view.html?
   urlLabel_2="sample0_UV"
 
 ```
+
+Sample plot is in sample.png
