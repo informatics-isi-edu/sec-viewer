@@ -36,14 +36,15 @@ URL query parameters.
 | Parameter | Value | Description |
 | --- | --- | --- |
 | **url** | URL | one or more URLs of the JSON datafiles to be used for each trace |
-| **regionStart** | float | in minutes, the start of region |
+| **regionStart** | float | in minutes, the start of the region |
 | **regionEnd** | float | in minutes, the end of the region |
-| **base** | int | to indicate with url is to be used as baseline |
-| **standard** | int | to indicate which url is to be used as standard(starting with 0), default to |
+| **base** | int | to indicate with url is the baseline(start with 1) |
+| **standard** | int | to indicate which url is the standard(starting with 1) |
 | **detectorName** | chars | name of the detector |
 | **plotTitle** | chars | title of the plot |
 | **plotUnit** | chars | unit of plot's y axis |
-| **urlLabel_n** | chars | specify the alternative label for the datafile or else default to filename, n indicate the ith datafile |
+| **urlLabel_n** | chars | specify the alternative label for the datafile or else default to filename, n indicate the ith datafile(starting with 1) |
+
 
 ## Examples
 
