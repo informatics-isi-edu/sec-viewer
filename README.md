@@ -24,7 +24,7 @@ Initial marking of a region used for normalization. This is highlighted in the s
 
 ## Base and Standard
 
-Default for Base line is 0. If there is supplied base line(noise), then the smoothing is done with the baseline or else the smoothing is by the minimum of each trace within the 'region'
+Default for Base line is 0. If a baseline (noise) supplied, then the smoothing is done with the baseline on all other data traces 
 
 Default for Standard line is 0 unless specified.  
 
