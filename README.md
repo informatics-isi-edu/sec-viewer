@@ -4,7 +4,7 @@ Plotly based viewer for SEC dataset (converted from cdf) in json
 
 ## Overview
 
-sec-viewer takes one or more json files as a input and additional parameters and creates a view of two interactive plots using plot.ly JavaScript line plotting routines. The main line plot composed of traces from the data from each datafile, the second slider line plot with rangeselector based on the standard datafile
+sec-viewer takes one or more json files as a input and additional parameters and creates a view of two interactive plots using plot.ly JavaScript line plotting routines. The main line plot composes of traces from the data extracted and processed from each datafile, the second slider line plot with rangeselector is made from the data from the designated standard datafile
 
 ## Download and Run
 
