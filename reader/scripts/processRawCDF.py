@@ -108,7 +108,7 @@ def list2dictionary(list):
 def process_for_standard(slist) :
     rlist=[]
     for standard in slist :
-      if not standard.endswith('.cdf'):
+      if not standard.endswith('.cdf') and not standard.endswith('.sec'):
         exit(1)
       tlist,vlist,mlist,slist=process_for_file("",standard)
 
@@ -187,7 +187,7 @@ def process_for_data(target,dataloc,qlist) :
       onlyfiles = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
     
     for file in onlyfiles:
-        if file.endswith('.cdf'):
+        if file.endswith('.cdf') or file.endswith('.sec'):
             jlist={} 
             # remove cdf part and also the path info
             targetfile = file[:-4]
